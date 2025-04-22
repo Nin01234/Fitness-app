@@ -1,0 +1,472 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+  }
+  
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+  
+  .shadow-glow {
+    @apply shadow-lg;
+    filter: drop-shadow(0 0 5px rgba(var(--primary-rgb)/0.3));
+  }
+  
+  .animated-gradient {
+    background-size: 200% 200%;
+    animation: gradient-shift 5s ease infinite;
+  }
+  
+  .animate-float {
+    animation: float 8s ease-in-out infinite;
+  }
+  
+  .animate-float-slow {
+    animation: float 12s ease-in-out infinite;
+  }
+  
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(var(--primary-rgb), 0) 0%,
+      rgba(var(--primary-rgb), 0.15) 50%,
+      rgba(var(--primary-rgb), 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite;
+  }
+  
+  .animate-marquee {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marquee 30s linear infinite;
+  }
+  
+  .animate-slide-up-down {
+    animation: slideUpDown 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    
+    /* Vibrant primary color - Purple */
+    --primary: 267 83% 60%;
+    --primary-rgb: 138, 43, 226;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary color - Teal */
+    --secondary: 180 100% 40%;
+    --secondary-rgb: 0, 204, 204;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Accent color - Pink */
+    --accent: 330 100% 65%;
+    --accent-rgb: 255, 51, 153;
+    --accent-foreground: 0 0% 100%;
+    
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 267 83% 60%;
+    
+    --radius: 0.75rem;
+    
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-heading: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    
+    /* Chart colors */
+    --chart-1: 267 83% 60%;
+    --chart-2: 180 100% 40%;
+    --chart-3: 330 100% 65%;
+    --chart-4: 150 100% 50%;
+    --chart-5: 60 100% 55%;
+    
+    --sidebar-background: 240 20% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 267 83% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 267 83% 60%;
+    
+    /* Transition speeds */
+    --transition-slow: 0.7s;
+    --transition-medium: 0.5s;
+    --transition-fast: 0.3s;
+  }
+  
+  .dark {
+    --background: 240 15% 6%;
+    --foreground: 0 0% 98%;
+    
+    --card: 240 15% 8%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 240 15% 8%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Vibrant primary color - Purple */
+    --primary: 267 83% 65%;
+    --primary-rgb: 158, 78, 233;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary color - Teal */
+    --secondary: 180 100% 45%;
+    --secondary-rgb: 0, 229, 229;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Accent color - Pink */
+    --accent: 330 100% 70%;
+    --accent-rgb: 255, 77, 166;
+    --accent-foreground: 0 0% 100%;
+    
+    --muted: 240 10% 15%;
+    --muted-foreground: 240 5% 74.9%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+    
+    --border: 240 10% 15%;
+    --input: 240 10% 15%;
+    --ring: 267 83% 65%;
+    
+    /* Chart colors */
+    --chart-1: 267 83% 70%;
+    --chart-2: 180 100% 50%;
+    --chart-3: 330 100% 70%;
+    --chart-4: 150 100% 60%;
+    --chart-5: 60 100% 65%;
+    
+    --sidebar-background: 240 15% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 267 83% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 10% 15%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 10% 15%;
+    --sidebar-ring: 267 83% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color var(--transition-medium) ease-in-out,
+                color var(--transition-medium) ease-in-out;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-medium;
+    transition: color var(--transition-medium) ease-in-out;
+  }
+  
+  /* Gradient text style */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
+    background-size: 200% auto;
+    animation: gradientFlow 5s ease infinite alternate;
+  }
+  
+  /* Smoother transitions for all links and interactive elements */
+  a, button, input, select, textarea {
+    transition: all var(--transition-fast) ease-in-out;
+  }
+  
+  /* Dynamic border transitions */
+  .border, [class*="border-"] {
+    transition: border-color var(--transition-fast) ease-in-out;
+  }
+  
+  /* Dynamic shadow transitions */
+  .shadow, [class*="shadow-"] {
+    transition: box-shadow var(--transition-fast) ease-in-out;
+  }
+  
+  /* All color transitions */
+  [class*="text-"], [class*="bg-"] {
+    transition: color var(--transition-fast) ease-in-out,
+                background-color var(--transition-fast) ease-in-out;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted/50 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/70 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary;
+}
+
+/* Animations */
+.animate-in {
+  animation: animateIn 0.5s ease-in-out forwards;
+  opacity: 0;
+}
+
+@keyframes animateIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
+  }
+}
+
+.hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.03);
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(var(--primary-rgb), 0.2);
+}
+
+/* Additional animations */
+@keyframes float {
+  0% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(-20px) translateX(10px); }
+  50% { transform: translateY(0) translateX(20px); }
+  75% { transform: translateY(20px) translateX(10px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Dynamic border gradient animation */
+.border-gradient {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.border-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: linear-gradient(to right, 
+    hsl(var(--primary)), 
+    hsl(var(--secondary)), 
+    hsl(var(--accent)), 
+    hsl(var(--primary))
+  );
+  background-size: 300% 100%;
+  animation: gradientFlow 4s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* Spotlight hover effect styles */
+.spotlight {
+  position: relative;
+}
+
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--x, 50%) var(--y, 50%), 
+    rgba(var(--primary-rgb), 0.3) 0%, 
+    transparent 40%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.2; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.2; }
+}
+
+/* Responsive Design Utilities */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive container for all device sizes */
+.container-responsive {
+  width: 100%;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* Mobile-first approach */
+@media (min-width: 640px) {
+  .container-responsive {
+    max-width: 640px;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-responsive {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    max-width: 1024px;
+    padding-right: 2rem;
+    padding-left: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-responsive {
+    max-width: 1280px;
+  }
+}
+
+/* Touch-friendly UI elements for mobile */
+@media (max-width: 640px) {
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  body {
+    font-size: 14px;
+  }
+  
+  .mobile-spacing {
+    @apply py-2 px-3;
+  }
+}
+
+/* Ensure YouTube videos are responsive */
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.video-container iframe,
+.video-container object,
+.video-container embed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(100vw);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Slide up and down animation for nutrition page */
+@keyframes slideUpDown {
+  0%, 25% {
+    transform: translateY(0);
+  }
+  33%, 58% {
+    transform: translateY(-100%);
+  }
+  66%, 91% {
+    transform: translateY(-200%);
+  }
+  100% {
+    transform: translateY(-300%);
+  }
+}
