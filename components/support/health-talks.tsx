@@ -350,122 +350,30 @@ export function HealthTalks() {
       </div>
 
       {selectedTalk && (
-        <Dialog open={!!selectedTalk} onOpenChange={() => setSelectedTalk(null)}>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>{selectedTalk.title}</DialogTitle>
-              <DialogDescription className="flex items-center gap-2">
-                <span>{selectedTalk.speaker}</span>
-                <span>•</span>
-                <span>{selectedTalk.date}</span>
+        <Dialog open={!!selectedTalk} onOpenChange={(open) => !open && setSelectedTalk(null)}>
+          <DialogContent className="max-w-4xl w-full p-0 overflow-hidden">
+            <DialogHeader className="p-6 pb-0">
+              <DialogTitle className="text-xl">{selectedTalk.title}</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground mt-1">
+                {selectedTalk.speaker}, {selectedTalk.role}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="p-6 space-y-4">
               <div className="aspect-video w-full rounded-lg overflow-hidden">
                 <YouTubeVideoPlayer
                   videoId={selectedTalk.videoId}
                   autoPlay={true}
-                  mute={false}
                   maintainAspectRatio={true}
-                  minHeight="240px"
-                  className="w-full h-full"
+                  mute={false}
                 />
               </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      addNotification({
-                        title: "Talk Liked",
-                        message: `You've liked "${selectedTalk.title}".`,
-                        type: "success"
-                      })
-                    }}
-                    aria-label={`Like ${selectedTalk.title}`}
-                  >
-                    <ThumbsUp className="h-4 w-4 mr-1" aria-hidden="true" />
-                    Like
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      addNotification({
-                        title: "Talk Saved",
-                        message: `"${selectedTalk.title}" has been saved to your library.`,
-                        type: "success"
-                      })
-                    }}
-                    aria-label={`Save ${selectedTalk.title} to your library`}
-                  >
-                    <Bookmark className="h-4 w-4 mr-1" aria-hidden="true" />
-                    Save
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      addNotification({
-                        title: "Talk Shared",
-                        message: `You've shared "${selectedTalk.title}" with your friends.`,
-                        type: "success"
-                      })
-                    }}
-                    aria-label={`Share ${selectedTalk.title}`}
-                  >
-                    <Share2 className="h-4 w-4 mr-1" aria-hidden="true" />
-                    Share
-                  </Button>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" aria-hidden="true" />
-                  <span>{selectedTalk.duration}</span>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-2">About the Speaker</h3>
-                <div className="flex items-center gap-3 mb-3">
-                  <Avatar>
-                    <AvatarImage src={`https://ui-avatars.com/api/?name=${selectedTalk.speaker.replace(' ', '+')}&background=random`} />
-                    <AvatarFallback>{selectedTalk.speaker.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{selectedTalk.speaker}</p>
-                    <p className="text-sm text-muted-foreground">{selectedTalk.role}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-2">Description</h3>
-                <p className="text-sm text-muted-foreground">{selectedTalk.description}</p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <h3 className="font-medium w-full mb-1">Tags</h3>
+              <p className="text-sm text-muted-foreground">{selectedTalk.description}</p>
+              <div className="flex flex-wrap gap-2 mt-2">
                 {selectedTalk.tags.map((tag: string) => (
                   <Badge key={tag} variant="secondary">
                     {tag}
                   </Badge>
                 ))}
-              </div>
-
-              <div className="pt-4">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    window.open(`https://www.youtube.com/watch?v=${selectedTalk.videoId}`, "_blank")
-                  }}
-                  aria-label={`Watch ${selectedTalk.title} on YouTube in a new tab`}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" aria-hidden="true" />
-                  Watch on YouTube
-                </Button>
               </div>
             </div>
           </DialogContent>

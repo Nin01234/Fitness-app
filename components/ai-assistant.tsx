@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FitnessCalculator } from "@/components/fitness-calculator"
+import { format } from "date-fns"
 
 interface Message {
   id: string
@@ -232,115 +233,105 @@ export function AIAssistant() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  const handleSendMessage = () => {
-    if (!input.trim()) return
+  // Add more comprehensive fitness information and responses
+  const getAIResponse = async (userMessage: string): Promise<string> => {
+    // Simple keyword-based response system - in a real app this would call an API
+    const userInput = userMessage.toLowerCase()
+    
+    // More detailed fitness knowledge base
+    const fitnessResponses = {
+      workout: [
+        "Based on the latest exercise science research, an effective full-body workout should include compound exercises targeting major muscle groups. I recommend starting with squats (3 sets, 8-12 reps), followed by bench press or push-ups (3 sets, 8-12 reps), bent-over rows or pull-ups (3 sets, 8-12 reps), overhead press (3 sets, 8-12 reps), and finishing with a core exercise like planks (3 sets, 30-60 seconds). Rest 60-90 seconds between sets, and ensure proper form throughout.",
+        "For an effective high-intensity interval training (HIIT) workout, try this: Warm up for 5 minutes, then alternate between 30 seconds of maximum effort exercise (like burpees, mountain climbers, or jump squats) and 30 seconds of rest. Complete 8-10 rounds total. This workout maximizes calorie burn while being time-efficient, taking only 20-25 minutes total.",
+        "If you're looking to build muscle, focus on progressive overload - gradually increasing the weight, frequency, or reps in your strength training routine. A split routine might work well, such as: Monday (Chest/Triceps), Tuesday (Back/Biceps), Wednesday (Rest), Thursday (Legs/Core), Friday (Shoulders/Arms), Weekend (Active Recovery). Aim for 8-12 reps per set for hypertrophy, with 3-4 sets per exercise.",
+      ],
+      nutrition: [
+        "For optimal fitness results, nutrition is just as important as exercise. Focus on whole foods with a good balance of macronutrients: 1.6-2.2g of protein per kg of bodyweight for muscle building, moderate carbohydrates (3-5g/kg) focusing on complex sources like whole grains, fruits and vegetables, and healthy fats (0.5-1.5g/kg) from sources like avocados, nuts, and olive oil. Stay hydrated with at least 3-4 liters of water daily, especially around workout times.",
+        "If weight loss is your goal, create a moderate calorie deficit of about 500 calories per day by combining increased physical activity with dietary changes. Focus on nutrient-dense, high-volume foods like vegetables, lean proteins, and whole grains that keep you feeling full. Consider tracking your food intake for a few weeks to understand your eating patterns. Remember that sustainable weight loss is typically 0.5-1kg per week.",
+        "For pre-workout nutrition, consume a meal with carbohydrates and moderate protein about 2-3 hours before exercise (e.g., oatmeal with protein powder and fruit). If you're exercising within an hour, opt for something easily digestible like a banana. Post-workout, aim to consume 20-30g of protein and some carbohydrates within 45 minutes to optimize recovery and muscle protein synthesis.",
+      ],
+      recovery: [
+        "Recovery is a crucial and often overlooked component of fitness. Ensure you're getting 7-9 hours of quality sleep nightly, as sleep is when most physical recovery and muscle building occurs. Consider adding active recovery days with light activities like walking or yoga. Proper hydration, nutrition, and possibly techniques like foam rolling can also enhance recovery between intense workout sessions.",
+        "To reduce delayed onset muscle soreness (DOMS), ensure proper warm-up before workouts, gradual progression in exercise intensity, adequate protein intake (1.6-2.2g/kg daily), and potentially light activity on rest days to promote blood flow to sore muscles. Cold therapy (like ice baths) or contrast therapy may provide temporary relief for some individuals.",
+        "Proper stretching techniques can improve recovery and flexibility. Dynamic stretches (like leg swings or arm circles) are best before workouts to prepare muscles for activity. Static stretches (holding a position for 15-30 seconds) are more effective post-workout when muscles are warm. Consider adding a dedicated mobility session 1-2 times weekly focusing on joint range of motion and muscle flexibility.",
+      ],
+      motivation: [
+        "Staying motivated with fitness requires finding your 'why' - the deeper reason behind your goals. Try setting SMART goals (Specific, Measurable, Achievable, Relevant, Time-bound) like 'complete three 30-minute workouts per week for the next month.' Track your progress, celebrate small wins, and consider finding a workout buddy or community for accountability.",
+        "If you're experiencing a motivation slump, try changing your routine completely. If you usually lift weights, try a dance class or swimming. Sometimes novelty itself can reinvigorate your motivation. Also consider how you can make workouts more enjoyable - maybe listen to podcasts, create energizing playlists, or exercise outdoors in nature.",
+        "Building lasting fitness habits is about consistency, not perfection. The '2-day rule' can be helpful - never miss more than two days in a row. This provides flexibility while maintaining consistency. Start with manageable changes and gradually build up. Remember that motivation follows action - sometimes you need to start the workout to find the motivation, not vice versa.",
+      ],
+      goals: [
+        "When setting fitness goals, consider focusing on performance rather than aesthetics alone. Targets like 'perform 10 push-ups with perfect form' or 'run 5km without stopping' give you concrete milestones to work toward. Break larger goals into smaller stepping stones, and track your progress objectively with a workout journal or fitness app.",
+        "For balanced fitness development, consider setting goals across different dimensions: strength (e.g., increase your squat by 20%), endurance (run for 30 minutes without stopping), flexibility (touch your toes or achieve a specific yoga pose), and skill acquisition (learn to swim or master a handstand). This comprehensive approach develops overall fitness rather than just one aspect.",
+        "Long-term fitness success comes from alignment between your goals and your lifestyle. Set goals that fit into your daily routine and that you genuinely enjoy pursuing. Remember that 'slow and steady' progress that you can maintain for years is far more effective than extreme approaches that last only weeks or months.",
+      ]
+    }
+    
+    // Check for fitness-related keywords and provide detailed responses
+    for (const [category, responses] of Object.entries(fitnessResponses)) {
+      if (userInput.includes(category)) {
+        return responses[Math.floor(Math.random() * responses.length)]
+      }
+    }
+    
+    // Generic responses for other queries
+    const genericResponses = [
+      "I'm here to help with your fitness journey! Feel free to ask me about workouts, nutrition, recovery strategies, or setting effective fitness goals.",
+      "As your fitness assistant, I can provide information on exercise techniques, meal planning, workout schedules, and motivation strategies. What specific area are you interested in exploring?",
+      "I'd be happy to assist with your fitness questions. I can help with creating workout plans, nutritional advice, recovery techniques, or fitness tracking. What would you like to know more about?",
+      "Thank you for your question. I can provide guidance on strength training, cardio workouts, flexibility exercises, sports nutrition, and establishing healthy habits. Could you specify which area you'd like help with?"
+    ]
+    
+    return genericResponses[Math.floor(Math.random() * genericResponses.length)]
+  }
 
-    // Add user message
-    const userMessage: Message = {
+  const handleSendMessage = async () => {
+    if (!input.trim()) {
+      return
+    }
+
+    const newUserMessage: Message = {
       id: Date.now().toString(),
       content: input,
       sender: "user",
       timestamp: new Date(),
     }
 
-    setMessages((prev) => [...prev, userMessage])
+    setMessages((prevMessages) => [...prevMessages, newUserMessage])
     setInput("")
     setIsLoading(true)
 
-    // Simulate AI response after a delay
-    setTimeout(() => {
-      const response = generateResponse(input)
+    try {
+      // Get AI response
+      const response = await getAIResponse(input)
       
-      const assistantMessage: Message = {
-        id: Date.now().toString(),
+      const newAIMessage: Message = {
+        id: (Date.now() + 1).toString(),
         content: response,
         sender: "assistant",
         timestamp: new Date(),
       }
+
+      setMessages((prevMessages) => [...prevMessages, newAIMessage])
       
-      setMessages((prev) => [...prev, assistantMessage])
-      setIsLoading(false)
-      
-      // Speak the response if speech is enabled
-      if (isSpeechEnabled) {
+      // Read message aloud if speech is enabled
+      if (isSpeechEnabled && speechVoice) {
         speakText(response)
       }
-    }, 1500)
-  }
-
-  const generateResponse = (query: string) => {
-    let response = "I'm processing your request..."
-
-    // Expanded pattern matching for more comprehensive AI responses
-    const lowerQuery = query.toLowerCase()
-
-    // Workout creation and tracking
-    if (lowerQuery.includes("workout") && lowerQuery.includes("create")) {
-      response =
-        "To create a custom workout in FitLife, go to the Workouts tab and tap the '+' button. You can then name your workout, select the type, difficulty, and add exercises with sets, reps, and weights. Don't forget to save it to your library when you're done!"
-    } 
-    // Nutrition tracking
-    else if (lowerQuery.includes("nutrition") || (lowerQuery.includes("track") && lowerQuery.includes("food"))) {
-      response =
-        "Tracking nutrition in FitLife is easy! Go to the Nutrition tab, where you can log meals, scan barcodes for packaged foods, and monitor your macros. You can also create meal plans and set nutrition goals based on your fitness objectives."
+    } catch (error) {
+      console.error("Error getting AI response:", error)
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "I'm sorry, I had trouble processing your request. Please try again.",
+        sender: "assistant",
+        timestamp: new Date(),
+      }
+      
+      setMessages((prevMessages) => [...prevMessages, errorMessage])
+    } finally {
+      setIsLoading(false)
     }
-    // Device connectivity
-    else if (lowerQuery.includes("connect") && (lowerQuery.includes("device") || lowerQuery.includes("tracker"))) {
-      response =
-        "To connect a fitness tracker or smartwatch, go to Settings > Devices > Connect Device. You can pair via Bluetooth or use the QR code to download the mobile app and sync your devices. FitLife supports most major fitness trackers including Fitbit, Garmin, and Apple Watch."
-    }
-    // Reminders and alerts
-    else if (lowerQuery.includes("reminder") || lowerQuery.includes("alert")) {
-      response =
-        "You can set up reminders in the Settings > Notifications section. Create custom alerts for workouts, meals, hydration, and more. You can choose specific days, times, and even custom sounds for each reminder to help you stay on track."
-    }
-    // Progress tracking
-    else if (lowerQuery.includes("progress") || (lowerQuery.includes("track") && lowerQuery.includes("improvement"))) {
-      response =
-        "FitLife offers comprehensive progress tracking! Check the Dashboard for an overview, or go to the Progress section to see detailed charts of your workouts, nutrition, body measurements, and more over time. You can also take progress photos and compare them side by side."
-    }
-    // Specific muscle group targeting
-    else if (lowerQuery.includes("core") || lowerQuery.includes("ab") || lowerQuery.includes("abdominal")) {
-      response = 
-        "Great core exercises include planks, Russian twists, bicycle crunches, and leg raises. For a complete core workout, try combining 3-4 of these exercises for 3 sets each, 2-3 times per week. Remember that compound movements like squats and deadlifts also engage your core significantly. Would you like me to suggest a specific core workout routine?"
-    }
-    // Pre-workout nutrition
-    else if (lowerQuery.includes("eat") && lowerQuery.includes("before") && lowerQuery.includes("workout")) {
-      response = 
-        "For optimal energy during your workout, eat a meal with carbs and some protein 2-3 hours before, or a small snack 30-60 minutes before. Good options include a banana with peanut butter, Greek yogurt with berries, or oatmeal with protein powder. Avoid heavy, fatty, or fiber-rich foods that might cause digestive discomfort during exercise."
-    }
-    // Protein recommendations
-    else if (lowerQuery.includes("protein") && (lowerQuery.includes("need") || lowerQuery.includes("much"))) {
-      response = 
-        "Your daily protein needs depend on your activity level and goals. For the average person, 0.8g per kg of bodyweight is sufficient. If you're active, aim for 1.2-1.7g/kg. For muscle building, target 1.6-2.2g/kg. For a 70kg person trying to build muscle, that's about 112-154g of protein daily. Try our calculator to get a personalized recommendation based on your specific details."
-    }
-    // Cardio for beginners
-    else if (lowerQuery.includes("cardio") && lowerQuery.includes("beginner")) {
-      response = 
-        "For beginners, start with walking 30 minutes, 3-5 times per week. Gradually introduce jogging intervals (walk 2 minutes, jog 1 minute). Swimming and cycling are also excellent low-impact options. Aim to build up to 150 minutes of moderate activity weekly. Listen to your body and progress gradually to avoid injury and burnout. Would you like a specific beginner cardio plan?"
-    }
-    // Flexibility improvement
-    else if (lowerQuery.includes("flexibility") || lowerQuery.includes("stretch")) {
-      response = 
-        "To improve flexibility, dedicate 10-15 minutes daily to stretching. Focus on major muscle groups like hamstrings, quads, hips, back, and shoulders. Hold static stretches for 30-60 seconds. Consider adding yoga or Pilates to your routine 2-3 times weekly. Dynamic stretching before workouts and static stretching after is ideal. Consistency is key - daily practice will yield better results than occasional longer sessions."
-    }
-    // Best time to exercise
-    else if (lowerQuery.includes("time") && lowerQuery.includes("exercise")) {
-      response = 
-        "The best time to exercise is whenever you can do it consistently. Morning workouts may help establish a routine and boost metabolism all day. Afternoon workouts (2-6pm) might offer performance benefits as your body temperature peaks. Evening workouts can help relieve stress but avoid intense exercise within 1-2 hours of bedtime. The most important factor is choosing a time you can maintain consistently."
-    }
-    // Weight loss meal plan
-    else if (lowerQuery.includes("meal plan") && lowerQuery.includes("weight loss")) {
-      response = 
-        "A balanced weight loss meal plan should create a moderate calorie deficit while providing adequate nutrition. Focus on protein (lean meats, fish, legumes), fiber-rich carbs (vegetables, fruits, whole grains), and healthy fats (avocado, nuts, olive oil). Aim for 3 moderate meals plus 1-2 small snacks. Portion control is key - use smaller plates and measure portions initially. Would you like me to suggest a sample day of eating?"
-    }
-    // Default response
-    else {
-      response =
-        "I'm here to help with your fitness journey! You can ask about workouts, nutrition, tracking progress, device connectivity, and more. I can also help calculate your BMI, daily calorie needs, protein requirements, and water intake in our calculator tab. What specific aspect of your fitness journey can I assist with today?"
-    }
-
-    return response
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -498,83 +489,51 @@ export function AIAssistant() {
 
   return (
     <Card 
-      className={`w-full ${isExpanded ? "fixed inset-4 z-50 h-[calc(100vh-32px)]" : "h-[500px] max-h-[85vh]"}`}
+      className={`w-full transition-all ${isExpanded ? "fixed inset-0 md:inset-4 z-50 h-[100vh] md:h-[calc(100vh-32px)]" : "h-[500px] max-h-[85vh]"}`}
       style={cardStyle}
     >
-      <CardHeader className="pb-2">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="flex items-center">
-            <div 
-              className="w-8 h-8 rounded-full flex items-center justify-center mr-2"
-              style={{ 
-                background: `${aiStyle.primaryColor}20`, 
-                boxShadow: aiStyle.avatarGlow
-              }}
-            >
-              <Bot className="h-5 w-5" style={{ color: aiStyle.primaryColor }} />
-            </div>
-            <div>
-              <CardTitle className="text-lg">FitLife Assistant</CardTitle>
-              <CardDescription>Powered by AI</CardDescription>
-            </div>
+      <CardHeader className="pb-2 flex-row items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center">
+          <div 
+            className="w-8 h-8 rounded-full flex items-center justify-center mr-2"
+            style={{ 
+              background: `${aiStyle.primaryColor}20`, 
+              boxShadow: aiStyle.avatarGlow
+            }}
+          >
+            <Bot className="h-5 w-5" style={{ color: aiStyle.primaryColor }} />
           </div>
-          <div className="flex items-center space-x-2">
-            <Tabs value={currentTab} className="hidden sm:block">
-              <TabsList>
-                <TabsTrigger value="chat" onClick={() => setCurrentTab("chat")}>
-                  <Brain className="h-4 w-4 mr-1" />
-                  Chat
-                </TabsTrigger>
-                <TabsTrigger value="calculator" onClick={() => setCurrentTab("calculator")}>
-                  <Calculator className="h-4 w-4 mr-1" />
-                  Calculator
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            <div className="flex-1 sm:flex-none flex items-center space-x-1">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={toggleSpeech} 
-                title={isSpeechEnabled ? "Disable voice" : "Enable voice"}
-                className={cn("transition-colors", isSpeechEnabled ? "text-primary" : "")}
-              >
-                {isSpeechEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)}>
-                {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-              </Button>
-              <Button variant="ghost" size="icon" onClick={clearChat}>
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </div>
+          <div>
+            <CardTitle className="text-lg">FitLife Assistant</CardTitle>
+            <CardDescription>Powered by AI</CardDescription>
           </div>
         </div>
-        <div className="flex sm:hidden mt-2">
-          <Tabs value={currentTab} className="w-full">
-            <TabsList className="w-full">
-              <TabsTrigger value="chat" onClick={() => setCurrentTab("chat")} className="flex-1">
-                <Brain className="h-4 w-4 mr-1" />
-                Chat
-              </TabsTrigger>
-              <TabsTrigger value="calculator" onClick={() => setCurrentTab("calculator")} className="flex-1">
-                <Calculator className="h-4 w-4 mr-1" />
-                Calculator
-              </TabsTrigger>
+        <div className="flex items-center space-x-2">
+          <Tabs defaultValue="chat" className="w-[200px]" onValueChange={(value) => setCurrentTab(value as "chat" | "calculator")}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="chat">Chat</TabsTrigger>
+              <TabsTrigger value="calculator">Calculator</TabsTrigger>
             </TabsList>
           </Tabs>
+          <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)} className="ml-auto">
+            {isExpanded ? (
+              <Minimize2 className="h-4 w-4" />
+            ) : (
+              <Maximize2 className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="p-0 flex-1 overflow-hidden">
         <div className="flex flex-col h-full">
           {currentTab === "chat" ? (
             <>
-              <ScrollArea className="flex-1 p-4">
+              <div className="flex-1 overflow-y-auto p-4" ref={messagesEndRef}>
                 <div className="space-y-4">
                   {messages.map((message) => (
                     <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
                       <div
-                        className={`flex items-start max-w-[80%] ${message.sender === "user" ? "flex-row-reverse" : ""}`}
+                        className={`flex items-start max-w-[90%] md:max-w-[80%] ${message.sender === "user" ? "flex-row-reverse" : ""}`}
                       >
                         <Avatar 
                           className={`h-8 w-8 ${message.sender === "user" ? "ml-2" : "mr-2"}`}
@@ -597,30 +556,19 @@ export function AIAssistant() {
                             </>
                           )}
                         </Avatar>
-                        <div>
-                          <div
-                            className="p-3"
-                            style={getMessageStyle(message.sender)}
-                          >
-                            {message.content}
-                            {message.sender === "assistant" && isSpeechEnabled && (
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="ml-2 h-6 w-6 opacity-70 hover:opacity-100"
-                                onClick={() => speakText(message.content)}
-                              >
-                                <Volume2 className="h-3 w-3" />
-                              </Button>
-                            )}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        <div
+                          className="rounded-lg px-3 py-2 text-sm"
+                          style={getMessageStyle(message.sender)}
+                        >
+                          <p className="whitespace-pre-wrap">{message.content}</p>
+                          <div className="mt-1 text-xs opacity-70">
+                            {format(message.timestamp, "HH:mm")}
                           </div>
                         </div>
                       </div>
                     </div>
                   ))}
+
                   {isLoading && (
                     <div className="flex justify-start">
                       <div className="flex items-start max-w-[80%]">
@@ -636,57 +584,24 @@ export function AIAssistant() {
                             <Sparkles className="h-4 w-4" style={{ color: aiStyle.primaryColor }} />
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <div 
-                            className="p-3 rounded-lg"
-                            style={{
-                              backgroundColor: aiStyle.secondaryColor,
-                              color: aiStyle.textColor,
-                              borderRadius: aiStyle.borderRadius,
-                              transition: aiStyle.messageTransition,
-                            }}
-                          >
-                            <div className="flex space-x-2">
-                              <div className="h-2 w-2 rounded-full animate-bounce" style={{ background: aiStyle.primaryColor }}></div>
-                              <div
-                                className="h-2 w-2 rounded-full animate-bounce"
-                                style={{ animationDelay: "0.2s", background: aiStyle.primaryColor }}
-                              ></div>
-                              <div
-                                className="h-2 w-2 rounded-full animate-bounce"
-                                style={{ animationDelay: "0.4s", background: aiStyle.primaryColor }}
-                              ></div>
+                        <div
+                          className="rounded-lg px-3 py-2 text-sm"
+                          style={getMessageStyle("assistant")}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div className="typing-indicator">
+                              <span className="dot"></span>
+                              <span className="dot"></span>
+                              <span className="dot"></span>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   )}
-                  <div ref={messagesEndRef} />
                 </div>
-              </ScrollArea>
-
-              {messages.length === 1 && (
-                <div className="px-4 pb-4">
-                  <h4 className="font-medium text-sm mb-2">Suggested questions:</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {sampleQuestions.map((question, index) => (
-                      <Badge
-                        key={index}
-                        className="cursor-pointer hover:bg-muted/80 transition-colors"
-                        style={{ 
-                          background: `${aiStyle.secondaryColor}`, 
-                          color: aiStyle.textColor,
-                          borderRadius: "999px" 
-                        }}
-                        onClick={() => handleSampleQuestion(question)}
-                      >
-                        {question}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
+                <div ref={messagesEndRef} />
+              </div>
 
               <div className="p-4 border-t">
                 <div className="flex gap-2">
@@ -706,7 +621,7 @@ export function AIAssistant() {
                   <Button
                     variant="default"
                     size="icon"
-                    className={isListening ? "transition-colors" : "transition-colors"}
+                    className="transition-colors"
                     style={{
                       background: isListening ? "#f43f5e" : aiStyle.primaryColor,
                       color: "white"
@@ -731,15 +646,13 @@ export function AIAssistant() {
                     <Send className="h-5 w-5" />
                   </Button>
                 </div>
-                {(isExpanded || !isLoading) && (
-                  <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center space-x-2">
-                      <Switch id="ai-voice" checked={isSpeechEnabled} onCheckedChange={toggleSpeech} />
-                      <Label htmlFor="ai-voice">Enable voice responses</Label>
-                    </div>
-                    {isListening && <span className="text-red-500 animate-pulse">Listening...</span>}
+                <div className="mt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm text-muted-foreground">
+                  <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                    <Switch id="ai-voice" checked={isSpeechEnabled} onCheckedChange={toggleSpeech} />
+                    <Label htmlFor="ai-voice">Enable voice responses</Label>
                   </div>
-                )}
+                  {isListening && <span className="text-red-500 animate-pulse">Listening...</span>}
+                </div>
               </div>
             </>
           ) : (

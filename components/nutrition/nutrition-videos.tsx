@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Play, Clock, ThumbsUp, Search, Filter } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { YouTubeVideoPlayer } from "@/components/workout/youtube-video-player"
 
 interface VideoItem {
   id: string
@@ -24,6 +26,7 @@ interface VideoItem {
 export function NutritionVideos() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null)
 
   const nutritionVideos: VideoItem[] = [
     {
@@ -188,8 +191,10 @@ export function NutritionVideos() {
     return matchesSearch && matchesTags
   })
 
-  const handleOpenVideo = (url: string) => {
-    window.open(url, "_blank")
+  const getVideoIdFromUrl = (url: string): string => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+    const match = url.match(regExp)
+    return (match && match[2].length === 11) ? match[2] : ""
   }
 
   return (
@@ -242,42 +247,37 @@ export function NutritionVideos() {
                 .filter((video) => category === "all" || video.category === category)
                 .map((video) => (
                   <Card key={video.id} className="overflow-hidden">
-                    <div className="relative aspect-video cursor-pointer" onClick={() => handleOpenVideo(video.url)}>
+                    <div className="relative aspect-video cursor-pointer" onClick={() => setSelectedVideo(video)}>
                       <img
                         src={video.thumbnail || "/placeholder.svg"}
                         alt={video.title}
                         className="object-cover w-full h-full"
                       />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 hover:opacity-100 transition-opacity">
-                        <Button variant="secondary" size="icon" className="rounded-full">
-                          <Play className="h-6 w-6" />
-                        </Button>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="rounded-full bg-black/60 p-3 text-white backdrop-blur-sm transition-transform hover:scale-110">
+                          <Play className="h-6 w-6 fill-current" />
+                        </div>
                       </div>
-                      <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      <div className="absolute bottom-2 right-2 bg-black/70 px-1.5 py-0.5 text-xs text-white rounded">
                         {video.duration}
                       </div>
                     </div>
-
                     <CardHeader className="p-4 pb-2">
                       <CardTitle className="text-base line-clamp-1">{video.title}</CardTitle>
                       <CardDescription className="line-clamp-2">{video.description}</CardDescription>
                     </CardHeader>
-
-                    <CardFooter className="p-4 pt-2 flex justify-between">
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <div className="flex items-center">
-                          <Clock className="mr-1 h-3 w-3" />
-                          {video.duration}
-                        </div>
-                        <div className="flex items-center">
-                          <ThumbsUp className="mr-1 h-3 w-3" />
-                          {video.likes}
-                        </div>
+                    <CardFooter className="px-4 py-2 pt-0 flex justify-between text-xs text-muted-foreground">
+                      <div className="flex items-center">
+                        <Clock className="mr-1 h-3.5 w-3.5" />
+                        {video.duration}
                       </div>
-
-                      <div className="flex gap-1">
+                      <div className="flex items-center">
+                        <ThumbsUp className="mr-1 h-3.5 w-3.5" />
+                        {video.likes}
+                      </div>
+                      <div className="flex flex-wrap gap-1">
                         {video.tags.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
+                          <Badge key={tag} variant="secondary" className="text-xs px-1.5">
                             {tag.replace("-", " ")}
                           </Badge>
                         ))}
@@ -285,26 +285,42 @@ export function NutritionVideos() {
                     </CardFooter>
                   </Card>
                 ))}
+              {filteredVideos.filter((video) => category === "all" || video.category === category).length === 0 && (
+                <div className="col-span-full py-10 text-center">
+                  <p className="text-muted-foreground">No videos found matching your criteria.</p>
+                </div>
+              )}
             </div>
-
-            {filteredVideos.filter((video) => category === "all" || video.category === category).length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">No videos found matching your criteria.</p>
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() => {
-                    setSearchQuery("")
-                    setSelectedTags([])
-                  }}
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            )}
           </TabsContent>
         ))}
       </Tabs>
+
+      <Dialog open={!!selectedVideo} onOpenChange={(open) => !open && setSelectedVideo(null)}>
+        <DialogContent className="max-w-3xl w-full p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle className="text-xl">{selectedVideo?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="p-6 space-y-4">
+            <div className="aspect-video w-full overflow-hidden rounded-md">
+              {selectedVideo && (
+                <YouTubeVideoPlayer
+                  videoId={getVideoIdFromUrl(selectedVideo.url)}
+                  autoPlay={true}
+                  maintainAspectRatio={true}
+                />
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">{selectedVideo?.description}</p>
+            <div className="flex flex-wrap gap-2">
+              {selectedVideo?.tags.map((tag) => (
+                <Badge key={tag} variant="secondary">
+                  {tag.replace("-", " ")}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

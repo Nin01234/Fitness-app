@@ -946,19 +946,6 @@ export default function PremiumPage() {
                         <SendIcon className="h-4 w-4" />
                       </Button>
                     </form>
-                    
-                    {!isPremium && !simulationMode && (
-                      <div className="bg-muted/80 backdrop-blur-sm absolute inset-0 flex items-center justify-center flex-col p-6 text-center">
-                        <BrainCircuit className="h-12 w-12 mb-4 text-indigo-500" />
-                        <h3 className="text-lg font-bold mb-2">Unlock AI Coaching</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Get personalized AI-powered fitness guidance with a premium subscription
-                        </p>
-                        <Button onClick={handleSubscribe} className="gap-1">
-                          <SparklesIcon className="h-4 w-4" /> Upgrade to Premium
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

@@ -21,9 +21,12 @@ declare global {
               mute?: number;
               modestbranding?: number;
               playsinline?: number;
+              fs?: number;
+              origin?: string;
+              enablejsapi?: number;
             };
             events?: {
-              onReady?: () => void;
+              onReady?: (event: any) => void;
               onStateChange?: (event: { data: number }) => void;
               onError?: (event: { data: number }) => void;
             };
@@ -40,6 +43,11 @@ interface YouTubePlayer {
   loadVideoById: (videoId: string) => void;
   pauseVideo: () => void;
   playVideo: () => void;
+  setPlaybackQuality: (quality: string) => void;
+  mute: () => void;
+  unMute: () => void;
+  getIframe: () => HTMLIFrameElement;
+  getPlayerState: () => number;
 }
 
 interface YouTubeVideoPlayerProps {
@@ -156,13 +164,45 @@ export function YouTubeVideoPlayer({
               showinfo: 0,
               mute: mute ? 1 : 0,
               modestbranding: 1,
-              playsinline: 1
+              playsinline: 1,
+              fs: 0, // Disable YouTube's fullscreen button to use our custom one
+              origin: window.location.origin,
+              enablejsapi: 1
             },
             events: {
-              onReady: () => {
+              onReady: (event) => {
                 setIsLoading(false)
                 setIsPlayerReady(true)
                 console.log("YouTube player ready")
+                
+                // Apply high quality if available
+                try {
+                  event.target.setPlaybackQuality('hd720')
+                } catch (error) {
+                  console.warn("Could not set playback quality", error)
+                }
+                
+                // Force autoplay on mobile if needed
+                if (autoPlay && isMobile) {
+                  try {
+                    if (mute) {
+                      event.target.mute()
+                    }
+                    event.target.playVideo()
+                  } catch (error) {
+                    console.warn("Could not autoplay on mobile", error)
+                  }
+                }
+                
+                // Ensure iframe doesn't redirect to YouTube
+                try {
+                  const iframe = event.target.getIframe()
+                  if (iframe) {
+                    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation')
+                  }
+                } catch (error) {
+                  console.warn("Could not set iframe attributes", error)
+                }
               },
               onStateChange: (event) => {
                 // Video ended (state = 0)
@@ -210,7 +250,7 @@ export function YouTubeVideoPlayer({
         }
       }
     }
-  }, [videoId, autoPlay, onVideoEnd, mute])
+  }, [videoId, autoPlay, onVideoEnd, mute, isMobile])
 
   // Handle video ID changes
   useEffect(() => {

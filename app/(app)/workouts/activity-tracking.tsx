@@ -36,6 +36,7 @@ import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { RealTimeSensor } from "@/components/workouts/real-time-sensor"
 
 // Activity types with real video IDs
 const activityVideos = {
@@ -850,7 +851,7 @@ export function ActivityTracking() {
               <Badge variant="outline">Weekly</Badge>
             </div>
             <CardTitle className="mt-2">Active Minutes</CardTitle>
-            <CardDescription>Track your activity minutes per day</CardDescription>
+            <CardDescription>Track your active time throughout the week</CardDescription>
           </CardHeader>
           <CardContent className="p-4">
             <div className="text-center mb-4">
@@ -1213,6 +1214,11 @@ export function ActivityTracking() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Add RealTimeSensor component as a full-width card */}
+        <div className={`${selectedActivity === "all" ? "md:col-span-2 lg:col-span-3" : "hidden"}`}>
+          <RealTimeSensor />
+        </div>
       </div>
       
       <div className="mt-6 flex gap-4">

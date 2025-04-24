@@ -4,7 +4,7 @@ import { Metadata } from "next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronRight, FileText, Shield, Info, Lock, UserPlus } from "lucide-react"
+import { ChevronRight, FileText, Shield, Info, Lock, UserPlus, AlertTriangle, Database, Eye, HelpCircle } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Terms and Conditions | FitLife Pro",
@@ -22,11 +22,12 @@ export default function TermsPage() {
       </div>
       
       <Tabs defaultValue="terms" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-8">
+        <TabsList className="grid w-full grid-cols-5 mb-8">
           <TabsTrigger value="terms">Terms of Service</TabsTrigger>
           <TabsTrigger value="privacy">Privacy Policy</TabsTrigger>
           <TabsTrigger value="data">Data Processing</TabsTrigger>
-          <TabsTrigger value="cookies">Cookie Policy</TabsTrigger>
+          <TabsTrigger value="precautions">Precautions</TabsTrigger>
+          <TabsTrigger value="information">Information</TabsTrigger>
         </TabsList>
         
         <TabsContent value="terms">
@@ -113,13 +114,29 @@ export default function TermsPage() {
                 We reserve the right to modify or replace these Terms at any time. If a revision is material, we will provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.
               </p>
               
-              <h3>13. Contact Us</h3>
+              <h3>13. Acceptable Use and Abuse Prevention</h3>
+              <p>
+                You agree not to misuse the Service or help anyone else do so. Misuse includes but is not limited to:
+              </p>
+              <ul>
+                <li>Attempting to gain unauthorized access to the Service or other users' accounts</li>
+                <li>Using automated methods to access the Service in a manner that sends more requests than a human could reasonably produce</li>
+                <li>Interfering with the proper working of the Service</li>
+                <li>Bypassing measures designed to prevent or restrict access to the Service</li>
+                <li>Distributing harmful software or engaging in activities that compromise the security of the Service</li>
+                <li>Creating multiple accounts for abusive purposes or to circumvent restrictions</li>
+              </ul>
+              <p>
+                Violation of these abuse prevention measures may result in immediate account termination and potential legal action.
+              </p>
+              
+              <h3>14. Contact Us</h3>
               <p>
                 If you have any questions about these Terms, please contact us at:
               </p>
               <p>
-                <strong>Email:</strong> support@fitlifepro.com<br />
-                <strong>Address:</strong> 123 Fitness Avenue, Health City, 98765
+                <strong>Email:</strong> innocentgh10@gmail.com<br />
+                <strong>Address:</strong> 419 university of ghana, 123
               </p>
             </CardContent>
             <CardFooter className="border-t pt-6 flex justify-between">
@@ -216,7 +233,42 @@ export default function TermsPage() {
               
               <h3>9. Contact Us</h3>
               <p>
-                If you have any questions about this Privacy Policy, please contact us at privacy@fitlifepro.com.
+                If you have any questions about this Privacy Policy, please contact us at innocentgh10@gmail.com.
+              </p>
+
+              <h3>14. User Content License</h3>
+              <p>
+                When you upload or share content on our platform (such as profile pictures, progress photos, workout videos, etc.), you grant FitLife Pro a non-exclusive, royalty-free, transferable, sub-licensable, worldwide license to host, use, distribute, modify, run, copy, publicly perform or display, translate, and create derivative works of your content.
+              </p>
+
+              <h3>15. Third-Party Integrations</h3>
+              <p>
+                Our Service may integrate with third-party fitness devices, apps, and services to enhance functionality. By connecting these third-party services, you authorize us to exchange data with these services according to your privacy settings. These third-party services have their own terms and privacy policies, and we are not responsible for their practices.
+              </p>
+
+              <h3>16. Dispute Resolution</h3>
+              <p>
+                Any dispute arising from these Terms shall first be resolved through good-faith negotiations. If negotiations fail, both parties agree to resolve the dispute through arbitration rather than court proceedings. The arbitration shall be conducted in accordance with the rules of the International Arbitration Association in Ghana.
+              </p>
+
+              <h3>17. Force Majeure</h3>
+              <p>
+                Neither party shall be liable for any failure or delay in performance due to circumstances beyond their reasonable control, including but not limited to acts of God, natural disasters, pandemic, epidemic, war, terrorism, riots, civil disorder, governmental actions, or internet disturbance.
+              </p>
+
+              <h3>18. Severability</h3>
+              <p>
+                If any provision of these Terms is found to be unenforceable or invalid, that provision will be limited or eliminated to the minimum extent necessary so that the Terms will otherwise remain in full effect and enforceable.
+              </p>
+
+              <h3>19. Assignment</h3>
+              <p>
+                You may not assign or transfer these Terms, by operation of law or otherwise, without our prior written consent. Any attempt to assign or transfer these Terms without such consent will be null and void. We may freely assign or transfer these Terms without restriction.
+              </p>
+
+              <h3>20. Entire Agreement</h3>
+              <p>
+                These Terms, including our Privacy Policy, constitute the entire agreement between you and FitLife Pro regarding our Service and supersede any prior agreements or understandings, whether written or oral.
               </p>
             </CardContent>
           </Card>
@@ -226,7 +278,7 @@ export default function TermsPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Info className="h-5 w-5 text-primary" />
+                <Database className="h-5 w-5 text-primary" />
                 <CardTitle>Data Processing Agreement</CardTitle>
               </div>
               <CardDescription>
@@ -248,186 +300,256 @@ export default function TermsPage() {
               
               <h3>2. Purpose of Processing</h3>
               <p>
-                We process personal data for the following purposes:
+                We process your data for the following purposes:
               </p>
               <ul>
-                <li>To provide personalized fitness and nutrition recommendations</li>
-                <li>To track progress toward fitness goals</li>
-                <li>To process payments for premium subscriptions</li>
-                <li>To improve our services and develop new features</li>
-                <li>To communicate with users about their accounts and provide customer support</li>
-                <li>To ensure the security of our services</li>
+                <li>Account creation and authentication</li>
+                <li>Providing personalized fitness and nutrition recommendations</li>
+                <li>Progress tracking and goal management</li>
+                <li>Communication about your account, updates, and features</li>
+                <li>Payment processing for premium subscriptions</li>
+                <li>Improving our services through analytics and research</li>
+                <li>Complying with legal obligations</li>
               </ul>
               
-              <h3>3. Duration of Processing</h3>
+              <h3>3. Data Retention</h3>
               <p>
-                We will process personal data for as long as the user maintains an active account with FitLife Pro. Users can request deletion of their account and associated data at any time through the app settings or by contacting customer support.
-              </p>
-              <p>
-                After account deletion, we may retain certain information in anonymized or aggregated form for analytical purposes or as required by law.
+                We retain your personal data for as long as your account is active or as needed to provide you with our services. We may retain certain information for legitimate business purposes or as required by law. When we no longer need your data, we will securely delete or anonymize it.
               </p>
               
-              <h3>4. Subprocessors</h3>
+              <h3>4. Data Subject Rights</h3>
               <p>
-                FitLife Pro uses the following categories of subprocessors to provide our services:
+                As a data subject, you have the right to:
               </p>
               <ul>
-                <li>Cloud hosting and storage providers</li>
-                <li>Payment processors</li>
-                <li>Analytics providers</li>
-                <li>Customer support tools</li>
-                <li>Communication services</li>
+                <li>Access your personal data</li>
+                <li>Rectify inaccurate data</li>
+                <li>Request erasure of your data</li>
+                <li>Restrict or object to processing</li>
+                <li>Data portability</li>
+                <li>Lodge a complaint with a supervisory authority</li>
               </ul>
               <p>
-                We ensure that all subprocessors provide appropriate technical and organizational measures to protect personal data in accordance with applicable data protection laws.
+                To exercise these rights, please contact our Data Protection Officer at dpo@fitlifepro.com.
               </p>
               
               <h3>5. Data Security Measures</h3>
               <p>
-                We implement appropriate technical and organizational measures to ensure a level of security appropriate to the risk, including:
+                We implement appropriate technical and organizational measures to ensure the security of your data, including:
               </p>
               <ul>
-                <li>Encryption of personal data in transit and at rest</li>
-                <li>Regular testing and evaluation of security measures</li>
-                <li>Access controls and authentication requirements</li>
-                <li>Regular backups and disaster recovery procedures</li>
+                <li>Encryption of personal data</li>
+                <li>Regular security assessments and penetration testing</li>
+                <li>Access controls and authentication measures</li>
                 <li>Staff training on data protection and security</li>
+                <li>Incident response procedures</li>
+                <li>Regular backups and disaster recovery planning</li>
               </ul>
               
-              <h3>6. Data Subject Rights</h3>
+              <h3>6. International Data Transfers</h3>
               <p>
-                We will assist in responding to requests from data subjects to exercise their rights, including:
-              </p>
-              <ul>
-                <li>Right of access</li>
-                <li>Right to rectification</li>
-                <li>Right to erasure</li>
-                <li>Right to restriction of processing</li>
-                <li>Right to data portability</li>
-                <li>Right to object to processing</li>
-              </ul>
-              
-              <h3>7. Data Breach Notification</h3>
-              <p>
-                In the event of a personal data breach, we will notify affected users without undue delay after becoming aware of the breach, where feasible within 72 hours, unless the breach is unlikely to result in a risk to the rights and freedoms of natural persons.
+                Your data may be transferred to and processed in countries outside your country of residence. We ensure that any such transfers comply with applicable data protection laws and that appropriate safeguards are in place to protect your personal data.
               </p>
               
-              <h3>8. Cross-Border Data Transfers</h3>
+              <h3>7. Subprocessors</h3>
               <p>
-                If personal data is transferred outside the European Economic Area (EEA) or the user's country of residence, we ensure that appropriate safeguards are in place in accordance with applicable data protection laws.
+                We may use third-party service providers to process personal data on our behalf. All our subprocessors are bound by data processing agreements that require them to process data in accordance with our instructions and implement appropriate security measures.
+              </p>
+              
+              <h3>8. Data Breach Notification</h3>
+              <p>
+                In the event of a personal data breach, we will notify the relevant supervisory authority without undue delay and, where feasible, within 72 hours after becoming aware of the breach. We will also notify affected users when the breach is likely to result in a high risk to their rights and freedoms.
               </p>
             </CardContent>
           </Card>
         </TabsContent>
         
-        <TabsContent value="cookies">
+        <TabsContent value="precautions">
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Lock className="h-5 w-5 text-primary" />
-                <CardTitle>Cookie Policy</CardTitle>
+                <AlertTriangle className="h-5 w-5 text-primary" />
+                <CardTitle>Precautions and Warnings</CardTitle>
               </div>
               <CardDescription>
-                How we use cookies and similar technologies
+                Important safety information about using FitLife Pro
               </CardDescription>
             </CardHeader>
             <CardContent className="prose prose-sm dark:prose-invert max-w-none">
-              <h3>1. What Are Cookies</h3>
+              <h3>1. Health and Medical Precautions</h3>
               <p>
-                Cookies are small text files that are placed on your device when you visit a website. They are widely used to make websites work more efficiently and provide information to the website owners.
+                <strong>Consult a Healthcare Professional:</strong> Before starting any exercise program or making significant changes to your diet, consult with a qualified healthcare professional, especially if you have any pre-existing health conditions, injuries, or concerns.
+              </p>
+              <p>
+                <strong>Not a Medical Device:</strong> FitLife Pro is not a medical device and is not intended to diagnose, treat, cure, or prevent any disease or health condition. The app should not be used as a substitute for professional medical advice, diagnosis, or treatment.
+              </p>
+              <p>
+                <strong>Pregnancy and Special Conditions:</strong> If you are pregnant, nursing, have a medical condition, or are taking medications, consult your healthcare provider before using any fitness or nutrition features within the app.
               </p>
               
-              <h3>2. How We Use Cookies</h3>
+              <h3>2. Exercise Warnings</h3>
               <p>
-                FitLife Pro uses cookies and similar technologies for the following purposes:
+                <strong>Proper Form and Technique:</strong> Always ensure you are using proper form and technique when performing exercises. Incorrect form can lead to injury. If you are unsure, seek guidance from a certified fitness professional.
               </p>
-              <ul>
-                <li><strong>Essential Cookies:</strong> These cookies are necessary for the website to function properly. They enable core functionality such as security, network management, and account access.</li>
-                <li><strong>Functional Cookies:</strong> These cookies enable us to provide enhanced functionality and personalization. They may be set by us or by third-party providers whose services we have added to our pages.</li>
-                <li><strong>Analytics Cookies:</strong> These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously. This helps us improve our website and services.</li>
-                <li><strong>Marketing Cookies:</strong> These cookies are used to track visitors across websites. The intention is to display ads that are relevant and engaging for the individual user.</li>
-                <li><strong>Preference Cookies:</strong> These cookies enable the website to remember information that changes the way the website behaves or looks, such as your preferred language or the region you are in.</li>
-              </ul>
-              
-              <h3>3. Types of Cookies We Use</h3>
-              <table className="min-w-full border-collapse border border-muted">
-                <thead>
-                  <tr>
-                    <th className="border border-muted p-2">Cookie Type</th>
-                    <th className="border border-muted p-2">Purpose</th>
-                    <th className="border border-muted p-2">Duration</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border border-muted p-2">Session Cookies</td>
-                    <td className="border border-muted p-2">These cookies are temporary and expire once you close your browser.</td>
-                    <td className="border border-muted p-2">Session</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-muted p-2">Persistent Cookies</td>
-                    <td className="border border-muted p-2">These cookies remain on your device until they expire or you delete them.</td>
-                    <td className="border border-muted p-2">Up to 2 years</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-muted p-2">Authentication Cookies</td>
-                    <td className="border border-muted p-2">These cookies help us identify users and prevent unauthorized access to user accounts.</td>
-                    <td className="border border-muted p-2">30 days</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-muted p-2">Preference Cookies</td>
-                    <td className="border border-muted p-2">These cookies remember your settings and preferences.</td>
-                    <td className="border border-muted p-2">1 year</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-muted p-2">Analytics Cookies</td>
-                    <td className="border border-muted p-2">These cookies collect information about how you use our website.</td>
-                    <td className="border border-muted p-2">Up to 2 years</td>
-                  </tr>
-                </tbody>
-              </table>
-              
-              <h3>4. Third-Party Cookies</h3>
               <p>
-                Some cookies are placed by third parties on our behalf. These third parties may include:
+                <strong>Listen to Your Body:</strong> Pay attention to your body's signals during exercise. Stop immediately if you experience pain, dizziness, shortness of breath, chest pain, or any unusual discomfort, and seek medical attention if necessary.
               </p>
-              <ul>
-                <li>Google Analytics (analytics)</li>
-                <li>Stripe (payment processing)</li>
-                <li>Facebook Pixel (marketing)</li>
-                <li>Intercom (customer support)</li>
-              </ul>
               <p>
-                These third parties may use cookies, web beacons, and similar technologies to collect or receive information from our website and elsewhere on the internet and use that information to provide measurement services and target ads.
+                <strong>Gradual Progression:</strong> Increase the intensity, duration, or difficulty of your workouts gradually. Sudden changes in exercise volume can increase the risk of injury.
+              </p>
+              <p>
+                <strong>Warm-Up and Cool-Down:</strong> Always include appropriate warm-up and cool-down periods in your workouts to prepare your body and reduce the risk of injury.
               </p>
               
-              <h3>5. Managing Cookies</h3>
+              <h3>3. Nutrition Precautions</h3>
               <p>
-                Most web browsers allow you to manage your cookie preferences. You can set your browser to refuse cookies, or to alert you when cookies are being sent. The following links provide information on how to modify your browser's settings to block or delete cookies:
+                <strong>Individual Nutritional Needs:</strong> Nutritional recommendations provided in the app are generalized and may not account for your specific allergies, intolerances, or medical conditions. Consult with a registered dietitian for personalized nutrition advice.
               </p>
-              <ul>
-                <li><a href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener noreferrer">Microsoft Edge</a></li>
-                <li><a href="https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop" target="_blank" rel="noopener noreferrer">Mozilla Firefox</a></li>
-                <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener noreferrer">Google Chrome</a></li>
-                <li><a href="https://support.apple.com/guide/safari/manage-cookies-and-website-data-sfri11471/mac" target="_blank" rel="noopener noreferrer">Safari</a></li>
-              </ul>
               <p>
-                Please note that if you choose to block cookies, you may not be able to use all the features of our website.
+                <strong>Extreme Diet Changes:</strong> Avoid extreme or rapid changes to your diet. Sustainable, gradual changes are generally safer and more effective for long-term health.
+              </p>
+              <p>
+                <strong>Caloric Restrictions:</strong> Very low-calorie diets can be harmful. The app's minimum calorie recommendations are set to maintain safety, and going below these limits is not recommended without medical supervision.
               </p>
               
-              <h3>6. Changes to Our Cookie Policy</h3>
+              <h3>4. Technical Warnings</h3>
               <p>
-                We may update our Cookie Policy from time to time. Any changes will be posted on this page with an updated revision date.
+                <strong>Data Accuracy:</strong> While we strive for accuracy, the measurements, calculations, and recommendations provided by the app may have limitations. Use the information as a guide rather than absolute truth.
+              </p>
+              <p>
+                <strong>Device Compatibility:</strong> The app may function differently on various devices and operating systems. Ensure your device meets the minimum requirements for optimal performance.
+              </p>
+              <p>
+                <strong>Battery Usage:</strong> Fitness tracking features, especially those using GPS or continuous heart rate monitoring, may significantly impact your device's battery life.
               </p>
               
-              <h3>7. Contact Us</h3>
+              <h3>5. Third-Party Integration Warnings</h3>
               <p>
-                If you have any questions about our Cookie Policy, please contact us at privacy@fitlifepro.com.
+                <strong>Connected Devices:</strong> When using connected fitness devices (heart rate monitors, activity trackers, etc.), follow the manufacturer's instructions and safety guidelines. Improper use may lead to inaccurate readings or potential safety hazards.
+              </p>
+              <p>
+                <strong>Third-Party Services:</strong> When you connect our app with third-party services, your data may be shared according to the privacy policies of those services. Review their terms before connecting.
               </p>
             </CardContent>
           </Card>
         </TabsContent>
+        
+        <TabsContent value="information">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Info className="h-5 w-5 text-primary" />
+                <CardTitle>General Information</CardTitle>
+              </div>
+              <CardDescription>
+                Additional details about FitLife Pro
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+              <h3>1. App Information</h3>
+              <p>
+                <strong>App Version:</strong> 2.1.0
+              </p>
+              <p>
+                <strong>Compatible Devices:</strong> iOS 14.0 or later, Android 9.0 or later
+              </p>
+              <p>
+                <strong>Languages Supported:</strong> English, Spanish, French, German, Italian, Portuguese, Japanese
+              </p>
+              <p>
+                <strong>App Size:</strong> Approximately 75MB (may vary by device)
+              </p>
+              
+              <h3>2. Support Information</h3>
+              <p>
+                <strong>Customer Support:</strong> support@fitlifepro.com
+              </p>
+              <p>
+                <strong>Technical Support:</strong> techsupport@fitlifepro.com
+              </p>
+              <p>
+                <strong>Response Time:</strong> We aim to respond to all inquiries within 24-48 hours
+              </p>
+              <p>
+                <strong>Knowledge Base:</strong> Available at help.fitlifepro.com
+              </p>
+              
+              <h3>3. Development Team</h3>
+              <p>
+                FitLife Pro is developed by a dedicated team of fitness enthusiasts and technology experts committed to helping you achieve your health and fitness goals.
+              </p>
+              <p>
+                <strong>Key Team Members:</strong>
+              </p>
+              <ul>
+                <li><strong>Godfred Osei</strong> - Backend Developer</li>
+                <li><strong>Beatrice Nettey</strong> - UX/UI Designer</li>
+                <li>Certified fitness professionals and nutritionists who review and validate content</li>
+                <li>Data scientists who develop and refine our recommendation algorithms</li>
+                <li>Security experts who ensure your data remains private and protected</li>
+              </ul>
+              
+              <h3>4. Subscription Information</h3>
+              <p>
+                <strong>Free Features:</strong> Basic workout tracking, step counting, water intake tracking, and weight logging
+              </p>
+              <p>
+                <strong>Premium Features:</strong> Advanced analytics, personalized workout plans, custom meal planning, premium content, priority support
+              </p>
+              <p>
+                <strong>Pricing:</strong>
+              </p>
+              <ul>
+                <li>Monthly: $9.99 per month</li>
+                <li>Quarterly: $24.99 (equivalent to $8.33 per month)</li>
+                <li>Annual: $89.99 (equivalent to $7.50 per month)</li>
+              </ul>
+              <p>
+                <strong>Free Trial:</strong> All new users are eligible for a 14-day free trial of Premium features
+              </p>
+              
+              <h3>5. App Permissions</h3>
+              <p>
+                FitLife Pro may request the following permissions to provide its full functionality:
+              </p>
+              <ul>
+                <li><strong>Physical Activity:</strong> To track workouts, steps, and movement</li>
+                <li><strong>Location:</strong> To map runs/walks and provide location-based features</li>
+                <li><strong>Camera:</strong> To scan food barcodes and take progress photos</li>
+                <li><strong>Photos:</strong> To store and display progress photos</li>
+                <li><strong>Notifications:</strong> To send workout reminders and motivational alerts</li>
+                <li><strong>Bluetooth:</strong> To connect with fitness devices and heart rate monitors</li>
+                <li><strong>Health Data:</strong> To read/write health information from your device's health app</li>
+              </ul>
+              <p>
+                You can manage all permissions in your device settings at any time.
+              </p>
+              
+              <h3>6. App Usage</h3>
+              <p>
+                For optimal experience and results with FitLife Pro:
+              </p>
+              <ul>
+                <li>Complete your profile with accurate information for more personalized recommendations</li>
+                <li>Log your workouts consistently to track progress and receive tailored guidance</li>
+                <li>Set realistic goals that align with your fitness level and available time</li>
+                <li>Enable notifications for reminders about workouts, water intake, and other healthy habits</li>
+                <li>Sync with wearable devices when possible for more accurate tracking</li>
+                <li>Update the app regularly to access new features and improvements</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+      
+      <div className="mt-16 text-center text-muted-foreground text-sm">
+        <p>
+          <strong>FitLife Pro</strong> • Developed with ❤️ by our amazing team
+        </p>
+        <p className="mt-2">
+          <Link href="/about/acknowledgments" className="text-primary hover:underline">Acknowledging our development team</Link>
+        </p>
+      </div>
     </div>
   )
 } 

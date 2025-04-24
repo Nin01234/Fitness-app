@@ -25,6 +25,8 @@ import {
   Loader2,
   Wifi,
   Activity,
+  FileText,
+  Users,
 } from "lucide-react"
 import { AppCreators } from "@/components/app-creators"
 import { BluetoothDeviceList } from "@/components/bluetooth-device-list"
@@ -616,6 +618,22 @@ export default async function SettingsPage() {
                 </div>
 
                 <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Legal & Acknowledgments</h3>
+                  <div className="space-y-2">
+                    <Button variant="outline" size="sm" className="w-full flex items-center gap-2" asChild>
+                      <Link href="/terms">
+                        <FileText className="h-4 w-4" /> Terms & Conditions
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full flex items-center gap-2" asChild>
+                      <Link href="/about/acknowledgments">
+                        <Users className="h-4 w-4" /> Team Acknowledgments
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
                   <h3 className="text-sm font-medium">Data Management</h3>
                   <div className="space-y-2">
                     <Button variant="outline" size="sm" className="w-full" asChild>
@@ -727,10 +745,13 @@ export default async function SettingsPage() {
                     <Link href="/help/about">About FitLife</Link>
                   </Button>
                   <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                    <Link href="/help/terms">Terms of Service</Link>
+                    <Link href="/terms">Terms of Service</Link>
                   </Button>
                   <Button variant="outline" size="sm" className="w-full justify-start" asChild>
                     <Link href="/help/privacy">Privacy Policy</Link>
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                    <Link href="/about/acknowledgments">Team Acknowledgments</Link>
                   </Button>
                 </div>
               </div>
