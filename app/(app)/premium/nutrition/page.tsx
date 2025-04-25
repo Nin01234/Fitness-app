@@ -72,12 +72,12 @@ const calorieData = [
 
 // Sample data for nutrient tracking
 const nutrientData = [
-  { nutrient: "Protein", current: 85, target: 120, unit: "g" },
-  { nutrient: "Carbs", current: 210, target: 250, unit: "g" },
-  { nutrient: "Fats", current: 65, target: 80, unit: "g" },
-  { nutrient: "Fiber", current: 22, target: 30, unit: "g" },
-  { nutrient: "Sugar", current: 45, target: 40, unit: "g" },
-  { nutrient: "Sodium", current: 1800, target: 2300, unit: "mg" },
+  { nutrient: "Protein", current: 0, target: 120, unit: "g" },
+  { nutrient: "Carbs", current: 0, target: 250, unit: "g" },
+  { nutrient: "Fats", current: 0, target: 80, unit: "g" },
+  { nutrient: "Fiber", current: 0, target: 30, unit: "g" },
+  { nutrient: "Sugar", current: 0, target: 40, unit: "g" },
+  { nutrient: "Sodium", current: 0, target: 2300, unit: "mg" },
 ];
 
 // Sample meal plan
@@ -178,7 +178,7 @@ const styles = {
 export default function PremiumNutritionPage() {
   const { isPremium, isLoading } = usePremiumStatus()
   const [simulatedPremium, setSimulatedPremium] = useState(false)
-  const [hydrationLevel, setHydrationLevel] = useState(1.2)
+  const [hydrationLevel, setHydrationLevel] = useState(0)
   const [notificationCount, setNotificationCount] = useState(2)
   const [notificationOpen, setNotificationOpen] = useState(false)
   const [dynamicNutrientData, setDynamicNutrientData] = useState(nutrientData)
@@ -187,6 +187,7 @@ export default function PremiumNutritionPage() {
   const [chatInput, setChatInput] = useState('')
   const [shoppingCart, setShoppingCart] = useState<string[]>([])
   const [selectedGroceryItems, setSelectedGroceryItems] = useState<{[key: string]: boolean}>({})
+  const [dataViewed, setDataViewed] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   
@@ -203,33 +204,24 @@ export default function PremiumNutritionPage() {
     setSimulatedPremium(simulated)
   }, [])
   
-  // Make data dynamic - periodically update values
+  // Updated useEffect that only updates data if the view button was clicked
   useEffect(() => {
-    // Only run if premium or simulated premium
-    if (isPremium || simulatedPremium) {
-      const interval = setInterval(() => {
-        // Random updates to nutrient data
-        if (Math.random() > 0.7) {
-          setDynamicNutrientData(prev => 
-            prev.map(item => ({
-              ...item,
-              current: Math.min(item.target * 1.2, Math.max(item.current + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 5), 0))
-            }))
-          );
-        }
-        
-        // Random chance to change notification count
-        if (Math.random() > 0.7) {
-          setNotificationCount(prev => {
-            const newCount = Math.min(5, prev + 1);
-            return newCount;
-          });
-        }
-      }, 10000); // More frequent updates: every 10 seconds for demo purposes
+    // Only run if premium or simulated premium AND data has been viewed
+    if ((isPremium || simulatedPremium) && dataViewed) {
+      // Set realistic values for nutrients
+      setDynamicNutrientData([
+        { nutrient: "Protein", current: 85, target: 120, unit: "g" },
+        { nutrient: "Carbs", current: 210, target: 250, unit: "g" },
+        { nutrient: "Fats", current: 65, target: 80, unit: "g" },
+        { nutrient: "Fiber", current: 22, target: 30, unit: "g" },
+        { nutrient: "Sugar", current: 28, target: 40, unit: "g" },
+        { nutrient: "Sodium", current: 1650, target: 2300, unit: "mg" },
+      ]);
       
-      return () => clearInterval(interval);
+      // Set hydration level
+      setHydrationLevel(1.5);
     }
-  }, [isPremium, simulatedPremium]);
+  }, [isPremium, simulatedPremium, dataViewed]);
   
   // If not premium and not in simulation mode, redirect to premium page
   useEffect(() => {
@@ -246,11 +238,8 @@ export default function PremiumNutritionPage() {
       duration: 3000,
     })
     
-    // In a real app, you'd open a meal logging modal
-    // For this demo, we'll just add a chat message if chat is open
-    if (chatOpen) {
-      handleChatAssistant("I'd like to log a meal")
-    }
+    // Navigate to the meal logging page
+    router.push('/nutrition/log-meal')
   }
   
   // Function to handle adding hydration
@@ -430,6 +419,16 @@ export default function PremiumNutritionPage() {
   const handleChatSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     handleChatAssistant()
+  }
+
+  // Function to handle viewing nutrition data
+  const handleViewData = () => {
+    setDataViewed(true);
+    toast({
+      title: "Nutrition Data",
+      description: "Loading your nutrition data...",
+      duration: 3000,
+    })
   }
 
   if (isLoading) {
@@ -656,9 +655,9 @@ export default function PremiumNutritionPage() {
       </div>
       
       {/* AI meal plan notification */}
-      <Card className="mb-8 bg-gradient-to-r from-primary/10 to-transparent overflow-hidden">
+      <Card className="mb-8">
         <div className="md:flex">
-          <div className="md:w-2/3 p-6">
+          <div className="w-full p-6">
             <div className="flex items-center gap-2 mb-3">
               <Badge variant="outline" className="font-normal gap-1 bg-primary/10">
                 <UtensilsCrossed className="h-3.5 w-3.5" /> AI PERSONALIZED
@@ -676,15 +675,6 @@ export default function PremiumNutritionPage() {
                 <ShoppingCart className="h-4 w-4" /> Generate Shopping List
               </Button>
             </div>
-          </div>
-          <div className="relative h-48 md:h-auto md:w-1/3">
-            <Image
-              src={SECURE_IMAGES.planning}
-              alt="Meal Planning"
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent" />
           </div>
         </div>
       </Card>
@@ -797,6 +787,11 @@ export default function PremiumNutritionPage() {
                   </div>
                 ))}
               </div>
+              <div className="mt-4">
+                <Button variant="outline" size="sm" onClick={handleViewData}>
+                  View Data
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -820,67 +815,121 @@ export default function PremiumNutritionPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {mealPlan.map((meal, index) => (
-                  <div key={index} className="border rounded-xl overflow-hidden">
-                    <div className="flex items-center justify-between bg-muted/50 px-4 py-3 border-b">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <UtensilsCrossed className="h-4 w-4 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium">{meal.meal}</h3>
-                          <div className="flex items-center text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3 mr-1" />
-                            <span>{meal.time}</span>
-                            <span className="mx-2">•</span>
-                            <span>{meal.calories} calories</span>
+              {dataViewed ? (
+                <div className="space-y-6">
+                  {mealPlan.map((meal, index) => (
+                    <div key={index} className="border rounded-xl overflow-hidden">
+                      <div className="flex items-center justify-between bg-muted/50 px-4 py-3 border-b">
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <UtensilsCrossed className="h-4 w-4 text-primary" />
                           </div>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm" className="gap-1" onClick={handleLogMeal}>
-                        <PlusCircle className="h-4 w-4" /> Log
-                      </Button>
-                    </div>
-                    <div className="p-4">
-                      <div className="grid gap-3">
-                        {meal.foods.map((food, foodIndex) => (
-                          <div key={foodIndex} className="flex justify-between items-center py-1">
-                            <div>
-                              <div className="font-medium">{food.name}</div>
-                              <div className="text-xs text-muted-foreground">{food.amount} • {food.macros}</div>
+                          <div>
+                            <h3 className="font-medium">{meal.meal}</h3>
+                            <div className="flex items-center text-xs text-muted-foreground">
+                              <Clock className="h-3 w-3 mr-1" />
+                              <span>{meal.time}</span>
+                              <span className="mx-2">•</span>
+                              <span>{meal.calories} calories</span>
                             </div>
-                            <div className="text-sm">{food.calories} cal</div>
                           </div>
-                        ))}
+                        </div>
+                        <Button variant="ghost" size="sm" className="gap-1" onClick={handleLogMeal}>
+                          <PlusCircle className="h-4 w-4" /> Log
+                        </Button>
+                      </div>
+                      <div className="p-4">
+                        <div className="grid gap-3">
+                          {meal.foods.map((food, foodIndex) => (
+                            <div key={foodIndex} className="flex justify-between items-center py-1">
+                              <div>
+                                <div className="font-medium">{food.name}</div>
+                                <div className="text-xs text-muted-foreground">{food.amount} • {food.macros}</div>
+                              </div>
+                              <div className="text-sm">{food.calories} cal</div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <CalendarDays className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No meal plan data available</h3>
+                  <p className="text-muted-foreground mb-4">
+                    View your personalized meal plan and nutrition recommendations
+                  </p>
+                  <Button variant="outline" onClick={handleViewData}>
+                    View Meal Plan
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
         
         <TabsContent value="tracking">
           <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Food Journal</CardTitle>
-              <CardDescription>
-                Track your daily food intake and nutrients
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Food Journal</CardTitle>
+                <CardDescription>
+                  Track your daily food intake and nutrients
+                </CardDescription>
+              </div>
+              <Button onClick={handleLogMeal}>
+                <PlusCircle className="h-4 w-4 mr-2" /> Log Meal
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-10">
-                <UtensilsCrossed className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No meals logged yet today</h3>
-                <p className="text-muted-foreground mb-4">
-                  Start tracking your nutrition by logging your meals
-                </p>
-                <Button onClick={handleLogMeal}>
-                  <PlusCircle className="h-4 w-4 mr-2" /> Log Your First Meal
-                </Button>
-              </div>
+              {dataViewed ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-4 py-2 px-4 bg-muted/30 rounded-lg text-sm font-medium">
+                    <div>Food</div>
+                    <div>Amount</div>
+                    <div>Macros</div>
+                    <div className="text-right">Calories</div>
+                  </div>
+                  
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                    {mealPlan.flatMap(meal => meal.foods).map((food, index) => (
+                      <div key={index} className="grid grid-cols-4 py-3 px-4 border-b last:border-0 hover:bg-muted/20 rounded-lg transition-colors">
+                        <div className="font-medium">{food.name}</div>
+                        <div className="text-muted-foreground">{food.amount}</div>
+                        <div className="text-muted-foreground">{food.macros}</div>
+                        <div className="text-right">{food.calories} cal</div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex justify-between items-center pt-2 px-4">
+                    <Button variant="outline" size="sm" onClick={handleExportMealPlan}>
+                      <FileText className="h-4 w-4 mr-2" /> Export Journal
+                    </Button>
+                    <div className="text-sm font-medium">
+                      Total: {mealPlan.flatMap(meal => meal.foods).reduce((acc, food) => acc + Number(food.calories), 0)} calories
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <UtensilsCrossed className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No meals logged yet today</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Start tracking your nutrition by logging your meals or viewing your data
+                  </p>
+                  <div className="flex justify-center gap-3">
+                    <Button onClick={handleLogMeal}>
+                      <PlusCircle className="h-4 w-4 mr-2" /> Log Meal
+                    </Button>
+                    <Button variant="outline" onClick={handleViewData}>
+                      View Data
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
           
@@ -910,12 +959,14 @@ export default function PremiumNutritionPage() {
                     />
                   </div>
                 </div>
-                <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3">
-                  <div className="text-sm">
-                    <span className="font-medium">Reminder:</span> Try to drink at least 2.5 liters of water daily
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1 bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3">
+                    <div className="text-sm">
+                      <span className="font-medium">Reminder:</span> Try to drink at least 2.5 liters of water daily
+                    </div>
                   </div>
-                  <Button variant="outline" size="sm" className="gap-1" onClick={handleAddHydration}>
-                    <PlusCircle className="h-4 w-4" /> Add
+                  <Button variant="outline" size="sm" onClick={handleViewData}>
+                    View
                   </Button>
                 </div>
               </CardContent>
@@ -977,7 +1028,7 @@ export default function PremiumNutritionPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
+              <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2">
                 {groceryList.map((category, index) => (
                   <div key={index} className="border rounded-lg overflow-hidden">
                     <div className="bg-muted/50 px-4 py-3 border-b font-medium">
@@ -990,6 +1041,15 @@ export default function PremiumNutritionPage() {
                             key={itemIndex} 
                             className={`flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-2 rounded-md transition-colors grocery-item ${selectedGroceryItems[item] ? 'bg-muted/40 border border-primary/20' : ''}`}
                             onClick={() => handleGroceryItemClick(item)}
+                            tabIndex={0}
+                            role="checkbox"
+                            aria-checked={!!selectedGroceryItems[item]}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleGroceryItemClick(item);
+                              }
+                            }}
                           >
                             <div className="h-5 w-5 rounded border flex items-center justify-center">
                               {selectedGroceryItems[item] ? (
@@ -1148,6 +1208,41 @@ export default function PremiumNutritionPage() {
         @keyframes slideInLeft {
           from { transform: translateX(-20px); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .message {
+          transition: all 0.3s ease-out;
+        }
+        
+        .animate-in {
+          animation-duration: 0.3s;
+          animation-fill-mode: both;
+        }
+        
+        /* Enhanced accessibility styles */
+        .grocery-item:focus {
+          outline: 2px solid var(--primary);
+          outline-offset: 2px;
+        }
+        
+        .max-h-400 {
+          max-height: 400px;
+        }
+        
+        .scrollbar-thin {
+          scrollbar-width: thin;
+        }
+        
+        /* Dynamic color transitions */
+        .dynamic-color-shift {
+          transition: background-color 2s ease;
+          animation: colorShift 10s infinite alternate;
+        }
+        
+        @keyframes colorShift {
+          0% { background-color: rgba(var(--primary-rgb), 0.05); }
+          50% { background-color: rgba(var(--secondary-rgb), 0.05); }
+          100% { background-color: rgba(var(--accent-rgb), 0.05); }
         }
       `}</style>
     </div>

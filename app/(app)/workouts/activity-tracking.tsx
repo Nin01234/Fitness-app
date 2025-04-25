@@ -37,6 +37,8 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RealTimeSensor } from "@/components/workouts/real-time-sensor"
+import { cn } from "@/lib/utils"
+import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 
 // Activity types with real video IDs
 const activityVideos = {

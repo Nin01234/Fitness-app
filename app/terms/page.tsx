@@ -462,16 +462,19 @@ export default function TermsPage() {
               
               <h3>2. Support Information</h3>
               <p>
-                <strong>Customer Support:</strong> support@fitlifepro.com
+                <strong>Customer Support:</strong> innocentgh10@gmail.com
               </p>
               <p>
-                <strong>Technical Support:</strong> techsupport@fitlifepro.com
+                <strong>Technical Support:</strong> innocentgh10@gmail.com
               </p>
               <p>
-                <strong>Response Time:</strong> We aim to respond to all inquiries within 24-48 hours
+                <strong>Phone Support:</strong> +233550477759
               </p>
               <p>
-                <strong>Knowledge Base:</strong> Available at help.fitlifepro.com
+                <strong>Response Time:</strong> We aim to respond to all inquiries as soon as possible
+              </p>
+              <p>
+                <strong>Knowledge Base:</strong> Available in the Support section
               </p>
               
               <h3>3. Development Team</h3>

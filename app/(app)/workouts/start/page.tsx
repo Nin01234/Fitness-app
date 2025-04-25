@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from "@/components/ui/progress"
 import { toast } from "@/components/ui/use-toast"
 import { WorkoutCountdown } from "@/components/workouts/workout-countdown"
-import { Play, Pause, SkipForward, CheckCircle, XCircle, Clock, Dumbbell, Heart, Flame, Volume2, VolumeX, Bluetooth } from "lucide-react"
+import { Play, Pause, SkipForward, CheckCircle, XCircle, Clock, Dumbbell, Heart, Flame, Volume2, VolumeX, Bluetooth, Maximize2, Minimize2 } from "lucide-react"
 import { DynamicBackground } from "@/components/workouts/dynamic-background"
 import { YouTubeVideoPlayer } from "@/components/workout/youtube-video-player"
 
@@ -176,6 +176,7 @@ export default function StartExercisePage() {
   const [currentVideo, setCurrentVideo] = useState<VideoDetails | null>(null)
   const [bluetoothAvailable, setBluetoothAvailable] = useState<boolean | null>(null)
   const [isBluetoothConnected, setIsBluetoothConnected] = useState(false)
+  const [videoMinimized, setVideoMinimized] = useState(false)
   
   // Sample workout data (in a real app, this would come from the database)
   const sampleWorkout = {
@@ -297,12 +298,14 @@ export default function StartExercisePage() {
 
   // Update current video when exercise changes
   useEffect(() => {
-    if (workout) {
-      const currentExercise = workout.exercises[currentExerciseIndex];
-      const videoDetails = findBestVideoMatch(currentExercise.name);
-      setCurrentVideo(videoDetails);
+    if (workout && currentExerciseIndex >= 0 && currentExerciseIndex < workout.exercises.length) {
+      const exercise = workout.exercises[currentExerciseIndex]
+      const video = findBestVideoMatch(exercise.name)
+      setCurrentVideo(video)
+      // Unmute video by default to ensure audio plays
+      setVideoMuted(false)
     }
-  }, [workout, currentExerciseIndex]);
+  }, [workout, currentExerciseIndex])
 
   if (!workout) {
     return (
@@ -363,6 +366,14 @@ export default function StartExercisePage() {
 
   function toggleVideoMute() {
     setVideoMuted(!videoMuted)
+    toast({
+      title: videoMuted ? "Audio Enabled" : "Audio Disabled",
+      description: videoMuted ? "Video sound is now on" : "Video sound is now muted",
+    })
+  }
+
+  function toggleVideoMinimized() {
+    setVideoMinimized(!videoMinimized)
   }
 
   // Connect to Bluetooth heart rate monitor
@@ -533,21 +544,51 @@ export default function StartExercisePage() {
               ) : (
                 <div className="py-4">
                   {/* YouTube Video Demonstration */}
-                  <div className="rounded-xl overflow-hidden mb-6 relative video-container">
+                  <div className={`rounded-xl overflow-hidden mb-6 relative video-container ${videoMinimized ? 'h-0' : ''}`}>
                     {currentVideo && (
                       <>
                         <YouTubeVideoPlayer 
                           videoId={currentVideo.videoId} 
-                          autoPlay={!isPaused && !isResting}
-                          className="w-full h-full"
-                          mute={true}
+                          autoPlay={true}
+                          mute={videoMuted}
+                          maintainAspectRatio={true}
+                          minHeight="240px"
+                          isMinimized={videoMinimized}
+                          onToggleMinimize={toggleVideoMinimized}
+                          className={videoMinimized ? 'absolute' : ''}
                         />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-white">
-                          <div className="text-sm font-medium">{currentVideo.title}</div>
-                          <div className="text-xs opacity-80">{currentVideo.channel}</div>
-                        </div>
+                        {!videoMinimized && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-white">
+                            <div className="text-sm font-medium">{currentVideo.title}</div>
+                            <div className="text-xs opacity-80">{currentVideo.channel}</div>
+                          </div>
+                        )}
                       </>
                     )}
+                  </div>
+
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="text-lg font-semibold">{currentExercise?.name}</div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={toggleVideoMute}
+                        className="h-8 w-8"
+                        title={videoMuted ? "Unmute video" : "Mute video"}
+                      >
+                        {videoMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={toggleVideoMinimized}
+                        className="h-8 w-8"
+                        title={videoMinimized ? "Maximize video" : "Minimize video"}
+                      >
+                        {videoMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-6">

@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -15,7 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Plus, X, Camera, Search, Sparkles, ArrowRight, Info, Database } from "lucide-react"
+import { Plus, X, Camera, Search, Sparkles, ArrowRight, Info, Database, Filter, Settings } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
@@ -52,11 +51,6 @@ const nutritionDatabase = [
   { id: "8", name: "Almonds", calories: 164, protein: 6, carbs: 6, fat: 14, category: "nuts", fiber: 3.5, sugar: 1.2, sodium: 1, potassium: 220, vitamin_a: 0, vitamin_c: 0, calcium: 75, iron: 1, serving_size: "28g", image: "https://source.unsplash.com/qXlHbElX3TM/100x100" },
   { id: "9", name: "Banana", calories: 89, protein: 1.1, carbs: 22.8, fat: 0.3, category: "fruit", fiber: 2.6, sugar: 12.2, sodium: 1, potassium: 358, vitamin_a: 64, vitamin_c: 8.7, calcium: 5, iron: 0.3, serving_size: "100g", image: "https://source.unsplash.com/fczCr7MdE7U/100x100" },
   { id: "10", name: "Egg", calories: 68, protein: 5.5, carbs: 0.6, fat: 4.8, category: "protein", fiber: 0, sugar: 0.6, sodium: 71, potassium: 69, vitamin_a: 487, vitamin_c: 0, calcium: 25, iron: 0.9, serving_size: "50g", image: "https://source.unsplash.com/1d9xXWMtQzQ/100x100" },
-  { id: "11", name: "Avocado", calories: 160, protein: 2, carbs: 8.5, fat: 14.7, category: "fruit", fiber: 6.7, sugar: 0.7, sodium: 7, potassium: 485, vitamin_a: 146, vitamin_c: 10, calcium: 12, iron: 0.6, serving_size: "100g", image: "https://source.unsplash.com/Iw-thiBGzAs/100x100" },
-  { id: "12", name: "Oatmeal", calories: 68, protein: 2.4, carbs: 12, fat: 1.4, category: "grain", fiber: 1.7, sugar: 0.4, sodium: 2, potassium: 61, vitamin_a: 0, vitamin_c: 0, calcium: 10, iron: 0.7, serving_size: "100g", image: "https://source.unsplash.com/YLyxXawZm4w/100x100" },
-  { id: "13", name: "Quinoa", calories: 120, protein: 4.4, carbs: 21.3, fat: 1.9, category: "grain", fiber: 2.8, sugar: 0.9, sodium: 7, potassium: 172, vitamin_a: 9, vitamin_c: 0, calcium: 17, iron: 1.5, serving_size: "100g", image: "https://source.unsplash.com/F-AdanKMxFQ/100x100" },
-  { id: "14", name: "Blueberries", calories: 57, protein: 0.7, carbs: 14.5, fat: 0.3, category: "fruit", fiber: 2.4, sugar: 10, sodium: 1, potassium: 77, vitamin_a: 54, vitamin_c: 9.7, calcium: 6, iron: 0.3, serving_size: "100g", image: "https://source.unsplash.com/QO6DTIm4FI8/100x100" },
-  { id: "15", name: "Black Beans", calories: 132, protein: 8.9, carbs: 23.7, fat: 0.5, category: "legume", fiber: 8.7, sugar: 0.3, sodium: 1, potassium: 355, vitamin_a: 0, vitamin_c: 0, calcium: 27, iron: 2.1, serving_size: "100g", image: "https://source.unsplash.com/YeGao3uk8kI/100x100" },
 ];
 
 // Food categories for filtering
@@ -107,13 +101,19 @@ export function FoodSelector({ form }: FoodSelectorProps) {
     category: "custom",
     serving_size: "100g",
   });
+  
+  // For tracking daily nutrition totals
+  const [totalProtein, setTotalProtein] = useState(0);
+  const [totalFiber, setTotalFiber] = useState(0);
+  const [fruitCount, setFruitCount] = useState(0);
+  const [vegetableCount, setVegetableCount] = useState(0);
 
-  const supabase = createClient()
+  const supabase = createClient();
 
   useEffect(() => {
     // Calculate daily goal progress
     const currentFoods = form.getValues("foods") || [];
-    let vegetableCount = 0;
+    let veggieCount = 0;
     let fruitCount = 0;
     let totalProtein = 0;
     let totalFiber = 0;
@@ -121,20 +121,25 @@ export function FoodSelector({ form }: FoodSelectorProps) {
     currentFoods.forEach((item: any) => {
       const food = foods.find(f => f.id === item.food_id);
       if (food) {
-        if (food.category === "vegetable") vegetableCount += item.servings;
+        if (food.category === "vegetable") veggieCount += item.servings;
         if (food.category === "fruit") fruitCount += item.servings;
         totalProtein += (food.protein || 0) * item.servings;
         totalFiber += (food.fiber || 0) * item.servings;
       }
     });
 
+    setTotalProtein(totalProtein);
+    setTotalFiber(totalFiber);
+    setFruitCount(fruitCount);
+    setVegetableCount(veggieCount);
+
     setDailyGoalProgress({
       protein: Math.min(100, (totalProtein / 60) * 100), // Assuming 60g daily protein goal
       fiber: Math.min(100, (totalFiber / 30) * 100),     // Assuming 30g daily fiber goal
       fruits: Math.min(100, (fruitCount / 2) * 100),     // Assuming 2 servings of fruit daily
-      vegetables: Math.min(100, (vegetableCount / 5) * 100) // Assuming 5 servings of vegetables daily
+      vegetables: Math.min(100, (veggieCount / 5) * 100) // Assuming 5 servings of vegetables daily
     });
-  }, [form.watch("foods")]);
+  }, [form.watch("foods"), foods]);
 
   // Filter foods based on search term and category
   const filteredFoods = foods.filter((food) => {
@@ -181,10 +186,10 @@ export function FoodSelector({ form }: FoodSelectorProps) {
   };
 
   const addCustomFood = () => {
-    if (!customFood.name) return
+    if (!customFood.name) return;
 
     // Generate a unique ID for the custom food
-    const newId = `custom-${Date.now()}`
+    const newId = `custom-${Date.now()}`;
 
     // Add to foods list
     const newFood = {
@@ -198,30 +203,30 @@ export function FoodSelector({ form }: FoodSelectorProps) {
       sugar: customFood.sugar,
       category: customFood.category,
       serving_size: customFood.serving_size,
-    }
+    };
 
-    setFoods((prev) => [...prev, newFood])
+    setFoods((prev) => [...prev, newFood]);
 
     // Add to form
-    const currentFoods = form.getValues("foods") || []
+    const currentFoods = form.getValues("foods") || [];
     form.setValue("foods", [
       ...currentFoods,
       {
         food_id: newId,
         servings: 1,
       },
-    ])
+    ]);
 
     // Update nutrition values
-    const currentCalories = form.getValues("calories") || 0
-    const currentProtein = form.getValues("protein") || 0
-    const currentCarbs = form.getValues("carbs") || 0
-    const currentFat = form.getValues("fat") || 0
+    const currentCalories = form.getValues("calories") || 0;
+    const currentProtein = form.getValues("protein") || 0;
+    const currentCarbs = form.getValues("carbs") || 0;
+    const currentFat = form.getValues("fat") || 0;
 
-    form.setValue("calories", currentCalories + customFood.calories)
-    form.setValue("protein", currentProtein + customFood.protein)
-    form.setValue("carbs", currentCarbs + customFood.carbs)
-    form.setValue("fat", currentFat + customFood.fat)
+    form.setValue("calories", currentCalories + customFood.calories);
+    form.setValue("protein", currentProtein + customFood.protein);
+    form.setValue("carbs", currentCarbs + customFood.carbs);
+    form.setValue("fat", currentFat + customFood.fat);
 
     // Reset form
     setCustomFood({
@@ -234,85 +239,95 @@ export function FoodSelector({ form }: FoodSelectorProps) {
       sugar: 0,
       category: "custom",
       serving_size: "100g",
-    })
-    setIsDialogOpen(false)
-  }
+    });
+    setIsDialogOpen(false);
+  };
 
   const removeFood = (index: number) => {
-    const currentFoods = form.getValues("foods") || []
-    const foodToRemove = currentFoods[index]
-    const food = foods.find((f) => f.id === foodToRemove.food_id)
+    const currentFoods = form.getValues("foods") || [];
+    const foodToRemove = currentFoods[index];
+    const food = foods.find((f) => f.id === foodToRemove.food_id);
 
     if (food) {
-      const currentCalories = form.getValues("calories") || 0
-      const currentProtein = form.getValues("protein") || 0
-      const currentCarbs = form.getValues("carbs") || 0
-      const currentFat = form.getValues("fat") || 0
+      const currentCalories = form.getValues("calories") || 0;
+      const currentProtein = form.getValues("protein") || 0;
+      const currentCarbs = form.getValues("carbs") || 0;
+      const currentFat = form.getValues("fat") || 0;
 
-      form.setValue("calories", currentCalories - food.calories * foodToRemove.servings)
-      form.setValue("protein", currentProtein - food.protein * foodToRemove.servings)
-      form.setValue("carbs", currentCarbs - food.carbs * foodToRemove.servings)
-      form.setValue("fat", currentFat - food.fat * foodToRemove.servings)
+      form.setValue("calories", currentCalories - food.calories * foodToRemove.servings);
+      form.setValue("protein", currentProtein - food.protein * foodToRemove.servings);
+      form.setValue("carbs", currentCarbs - food.carbs * foodToRemove.servings);
+      form.setValue("fat", currentFat - food.fat * foodToRemove.servings);
       
-      toast.info(`Removed ${food.name} from your meal`)
+      toast.info(`Removed ${food.name} from your meal`, {
+        description: `${Math.round(food.calories * foodToRemove.servings)} calories removed`
+      });
     }
 
-    const updatedFoods = [...currentFoods]
-    updatedFoods.splice(index, 1)
-    form.setValue("foods", updatedFoods)
-  }
+    const newFoods = [...currentFoods];
+    newFoods.splice(index, 1);
+    form.setValue("foods", newFoods);
+  };
 
   const handleScanQR = () => {
-    // In a real app, this would activate the camera for QR scanning
-    toast.info("QR scanning would be activated here.")
-  }
-
-  const selectedFoods = form.watch("foods") || []
+    toast.info("Barcode scanning would connect to food database API in production", {
+      description: "This is a demo feature",
+    });
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Foods & Nutrition</h3>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 border-0"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add Food
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-hidden flex flex-col">
-            <DialogHeader>
-              <DialogTitle>Add Food</DialogTitle>
-              <DialogDescription>Search for a food or add your own custom entry</DialogDescription>
-            </DialogHeader>
-
-            <Tabs defaultValue="search" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="search">Search</TabsTrigger>
-                <TabsTrigger value="scan">Scan Barcode</TabsTrigger>
-                <TabsTrigger value="custom">Custom</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="search" className="py-2">
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Search foods..."
-                      className="pl-9"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h3 className="text-lg font-medium">Food Items</h3>
+        
+        <div className="flex flex-wrap gap-2">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                <span>Add Food</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl">
+              <DialogHeader>
+                <DialogTitle>Add Food to Meal</DialogTitle>
+                <DialogDescription>
+                  Search for foods or add your own custom items
+                </DialogDescription>
+              </DialogHeader>
+              
+              <Tabs defaultValue="search" onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid grid-cols-3 mb-4">
+                  <TabsTrigger value="search">
+                    <Search className="h-4 w-4 mr-2" /> Search
+                  </TabsTrigger>
+                  <TabsTrigger value="scan">
+                    <Camera className="h-4 w-4 mr-2" /> Scan Barcode
+                  </TabsTrigger>
+                  <TabsTrigger value="custom">
+                    <Plus className="h-4 w-4 mr-2" /> Custom Food
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="search" className="space-y-4">
+                  <div className="flex gap-2 mb-4">
+                    <div className="flex-1 relative">
+                      <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="Search for a food..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <Button variant="outline" size="icon" onClick={() => setSelectedCategory("all")}>
+                      <Filter className="h-4 w-4" />
+                    </Button>
                   </div>
                   
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {foodCategories.map(category => (
-                      <Badge 
+                  <div className="flex gap-2 overflow-x-auto pb-2 mb-2">
+                    {foodCategories.map((category) => (
+                      <Badge
                         key={category.id}
                         variant={selectedCategory === category.id ? "default" : "outline"}
                         className="cursor-pointer"
@@ -322,393 +337,428 @@ export function FoodSelector({ form }: FoodSelectorProps) {
                       </Badge>
                     ))}
                   </div>
-
-                  <ScrollArea className="h-[350px] pr-4">
-                    <div className="grid grid-cols-1 gap-3">
-                      {filteredFoods.length > 0 ? (
+                  
+                  <ScrollArea className="h-[300px] rounded-md border p-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {filteredFoods.length === 0 ? (
+                        <div className="col-span-2 flex flex-col items-center justify-center h-[200px] text-center p-4">
+                          <Info className="h-8 w-8 text-muted-foreground mb-2" />
+                          <p className="text-muted-foreground">No foods found. Try a different search term or category.</p>
+                        </div>
+                      ) : (
                         filteredFoods.map((food) => (
-                          <div
+                          <Card
                             key={food.id}
-                            className={`p-3 border rounded-lg flex gap-3 items-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors ${
-                              selectedFood === food.id ? "border-primary bg-primary/10" : ""
+                            className={`border cursor-pointer transition-all ${
+                              selectedFood === food.id ? "border-primary" : "hover:border-primary/50"
                             }`}
                             onClick={() => setSelectedFood(food.id)}
                           >
-                            <div className="h-12 w-12 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                              {food.image ? (
-                                <img src={food.image} alt={food.name} className="h-full w-full object-cover" />
-                              ) : (
-                                <div className="h-full w-full flex items-center justify-center text-muted-foreground">
-                                  <Sparkles size={20} />
+                            <CardContent className="p-3 flex gap-3 items-center">
+                              <div
+                                className="h-12 w-12 rounded bg-muted flex-shrink-0 overflow-hidden"
+                                style={{
+                                  backgroundImage: food.image ? `url(${food.image})` : "none",
+                                  backgroundSize: "cover",
+                                  backgroundPosition: "center",
+                                }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{food.name}</p>
+                                <div className="text-xs text-muted-foreground flex gap-2">
+                                  <span>{food.calories} kcal</span>
+                                  <span className="font-medium text-primary">{food.serving_size}</span>
                                 </div>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium">{food.name}</div>
-                              <div className="text-sm text-muted-foreground flex flex-wrap gap-x-2">
-                                <span>{food.calories} kcal</span>
-                                <span>•</span>
-                                <span>{food.protein}g protein</span>
-                                <span>•</span>
-                                <span>{food.serving_size}</span>
+                                <div className="flex gap-2 mt-1">
+                                  <Badge variant="outline" className="text-xs">P: {food.protein}g</Badge>
+                                  <Badge variant="outline" className="text-xs">C: {food.carbs}g</Badge>
+                                  <Badge variant="outline" className="text-xs">F: {food.fat}g</Badge>
+                                </div>
                               </div>
-                            </div>
-                            <div className="ml-auto flex flex-col justify-between items-end">
-                              <Badge variant="outline" className="mb-2">{food.category}</Badge>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button size="icon" variant="ghost" className="h-6 w-6" onClick={(e) => {
-                                      e.stopPropagation();
-                                      // Show detailed nutrition info
-                                      toast.info(`Nutrition for ${food.name}`, {
-                                        description: (
-                                          <div className="text-xs space-y-1">
-                                            <div>Calories: {food.calories}kcal</div>
-                                            <div>Protein: {food.protein}g</div>
-                                            <div>Carbs: {food.carbs}g</div>
-                                            <div>Fat: {food.fat}g</div>
-                                            <div>Fiber: {food.fiber}g</div>
-                                            <div>Sugar: {food.sugar}g</div>
-                                          </div>
-                                        ),
-                                      });
-                                    }}>
-                                      <Info size={14} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>View detailed nutrition</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </div>
-                          </div>
+                            </CardContent>
+                          </Card>
                         ))
-                      ) : (
-                        <div className="flex items-center justify-center h-40 text-muted-foreground">
-                          No foods found matching your search
-                        </div>
                       )}
                     </div>
                   </ScrollArea>
-
+                  
                   {selectedFood && (
-                    <div className="pt-2 border-t">
-                      <div className="flex items-center justify-between">
-                        <label htmlFor="servings" className="text-sm font-medium">
-                          Servings
-                        </label>
-                        <div className="flex items-center">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 rounded-r-none"
-                            onClick={() => setServings(Math.max(0.5, servings - 0.5))}
-                            disabled={servings <= 0.5}
-                          >
-                            -
-                          </Button>
-                          <Input
-                            id="servings"
-                            type="number"
-                            value={servings}
-                            onChange={(e) => setServings(Number(e.target.value))}
-                            className="h-8 w-16 rounded-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            step={0.5}
-                            min={0.5}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 rounded-l-none"
-                            onClick={() => setServings(servings + 0.5)}
-                          >
-                            +
-                          </Button>
+                    <div className="border rounded-md p-3 mt-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">Serving Size</h4>
+                        <div className="text-sm text-muted-foreground">
+                          {filteredFoods.find((f) => f.id === selectedFood)?.serving_size}
                         </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setServings(Math.max(0.5, servings - 0.5))}
+                          disabled={servings <= 0.5}
+                        >
+                          <span>-</span>
+                        </Button>
+                        <Input
+                          type="number"
+                          min={0.5}
+                          step={0.5}
+                          value={servings}
+                          onChange={(e) => setServings(parseFloat(e.target.value) || 1)}
+                          className="text-center"
+                        />
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setServings(servings + 0.5)}
+                        >
+                          <span>+</span>
+                        </Button>
+                        <span className="ml-2 text-sm text-muted-foreground">servings</span>
                       </div>
                     </div>
                   )}
-                </div>
-              </TabsContent>
+                </TabsContent>
 
-              <TabsContent value="scan" className="h-[350px] flex flex-col items-center justify-center space-y-4">
-                <div className="p-6 border-2 border-dashed rounded-xl flex flex-col items-center gap-4">
-                  <Camera className="h-8 w-8 text-muted-foreground" />
-                  <p className="text-center">Scan a barcode to quickly add food information</p>
-                </div>
-                <Button onClick={handleScanQR}>
-                  <Camera className="mr-2 h-4 w-4" />
-                  Start Scanning
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  This feature would connect to a food database API in a production environment.
-                </p>
-              </TabsContent>
-
-              <TabsContent value="custom" className="py-2">
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="name" className="text-sm font-medium">
-                      Food Name
-                    </label>
-                    <Input
-                      id="name"
-                      value={customFood.name}
-                      onChange={(e) => setCustomFood({ ...customFood, name: e.target.value })}
-                      placeholder="e.g., Homemade Pasta"
-                    />
+                <TabsContent value="scan" className="h-[350px] flex flex-col items-center justify-center space-y-4">
+                  <div className="p-6 border-2 border-dashed rounded-xl flex flex-col items-center gap-4">
+                    <Camera className="h-8 w-8 text-muted-foreground" />
+                    <p className="text-center">Scan a barcode to quickly add food information</p>
                   </div>
+                  <Button onClick={handleScanQR}>
+                    <Camera className="mr-2 h-4 w-4" />
+                    Start Scanning
+                  </Button>
+                  <p className="text-sm text-muted-foreground">
+                    This feature would connect to a food database API in a production environment.
+                  </p>
+                </TabsContent>
 
-                  <div className="grid grid-cols-2 gap-4">
+                <TabsContent value="custom" className="py-2">
+                  <div className="space-y-4">
                     <div>
-                      <label htmlFor="calories" className="text-sm font-medium">
-                        Calories (kcal)
+                      <label htmlFor="name" className="text-sm font-medium">
+                        Food Name
                       </label>
                       <Input
-                        id="calories"
-                        type="number"
-                        value={customFood.calories}
-                        onChange={(e) =>
-                          setCustomFood({ ...customFood, calories: Number(e.target.value) })
-                        }
-                        min={0}
+                        id="name"
+                        value={customFood.name}
+                        onChange={(e) => setCustomFood({ ...customFood, name: e.target.value })}
+                        placeholder="e.g., Homemade Pasta"
                       />
                     </div>
-                    <div>
-                      <label htmlFor="protein" className="text-sm font-medium">
-                        Protein (g)
-                      </label>
-                      <Input
-                        id="protein"
-                        type="number"
-                        value={customFood.protein}
-                        onChange={(e) =>
-                          setCustomFood({ ...customFood, protein: Number(e.target.value) })
-                        }
-                        min={0}
-                      />
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="calories" className="text-sm font-medium">
+                          Calories
+                        </label>
+                        <Input
+                          id="calories"
+                          type="number"
+                          min={0}
+                          value={customFood.calories}
+                          onChange={(e) => setCustomFood({ ...customFood, calories: parseInt(e.target.value) || 0 })}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="serving" className="text-sm font-medium">
+                          Serving Size
+                        </label>
+                        <Input
+                          id="serving"
+                          value={customFood.serving_size}
+                          onChange={(e) => setCustomFood({ ...customFood, serving_size: e.target.value })}
+                          placeholder="e.g., 100g, 1 cup"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label htmlFor="carbs" className="text-sm font-medium">
-                        Carbs (g)
-                      </label>
-                      <Input
-                        id="carbs"
-                        type="number"
-                        value={customFood.carbs}
-                        onChange={(e) =>
-                          setCustomFood({ ...customFood, carbs: Number(e.target.value) })
-                        }
-                        min={0}
-                      />
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label htmlFor="protein" className="text-sm font-medium">
+                          Protein (g)
+                        </label>
+                        <Input
+                          id="protein"
+                          type="number"
+                          min={0}
+                          step={0.1}
+                          value={customFood.protein}
+                          onChange={(e) => setCustomFood({ ...customFood, protein: parseFloat(e.target.value) || 0 })}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="carbs" className="text-sm font-medium">
+                          Carbs (g)
+                        </label>
+                        <Input
+                          id="carbs"
+                          type="number"
+                          min={0}
+                          step={0.1}
+                          value={customFood.carbs}
+                          onChange={(e) => setCustomFood({ ...customFood, carbs: parseFloat(e.target.value) || 0 })}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="fat" className="text-sm font-medium">
+                          Fat (g)
+                        </label>
+                        <Input
+                          id="fat"
+                          type="number"
+                          min={0}
+                          step={0.1}
+                          value={customFood.fat}
+                          onChange={(e) => setCustomFood({ ...customFood, fat: parseFloat(e.target.value) || 0 })}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label htmlFor="fat" className="text-sm font-medium">
-                        Fat (g)
-                      </label>
-                      <Input
-                        id="fat"
-                        type="number"
-                        value={customFood.fat}
-                        onChange={(e) => setCustomFood({ ...customFood, fat: Number(e.target.value) })}
-                        min={0}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="fiber" className="text-sm font-medium">
-                        Fiber (g)
-                      </label>
-                      <Input
-                        id="fiber"
-                        type="number"
-                        value={customFood.fiber}
-                        onChange={(e) =>
-                          setCustomFood({ ...customFood, fiber: Number(e.target.value) })
-                        }
-                        min={0}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="sugar" className="text-sm font-medium">
-                        Sugar (g)
-                      </label>
-                      <Input
-                        id="sugar"
-                        type="number"
-                        value={customFood.sugar}
-                        onChange={(e) =>
-                          setCustomFood({ ...customFood, sugar: Number(e.target.value) })
-                        }
-                        min={0}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="serving_size" className="text-sm font-medium">
-                        Serving Size
-                      </label>
-                      <Input
-                        id="serving_size"
-                        value={customFood.serving_size}
-                        onChange={(e) =>
-                          setCustomFood({ ...customFood, serving_size: e.target.value })
-                        }
-                        placeholder="e.g., 100g, 1 cup"
-                      />
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="fiber" className="text-sm font-medium">
+                          Fiber (g)
+                        </label>
+                        <Input
+                          id="fiber"
+                          type="number"
+                          min={0}
+                          step={0.1}
+                          value={customFood.fiber}
+                          onChange={(e) => setCustomFood({ ...customFood, fiber: parseFloat(e.target.value) || 0 })}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="sugar" className="text-sm font-medium">
+                          Sugar (g)
+                        </label>
+                        <Input
+                          id="sugar"
+                          type="number"
+                          min={0}
+                          step={0.1}
+                          value={customFood.sugar}
+                          onChange={(e) => setCustomFood({ ...customFood, sugar: parseFloat(e.target.value) || 0 })}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-
-            <DialogFooter className="mt-auto pt-4">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancel
-              </Button>
-              {activeTab === "search" ? (
-                <Button onClick={addFood} disabled={!selectedFood}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add to Meal
-                </Button>
-              ) : activeTab === "custom" ? (
-                <Button onClick={addCustomFood} disabled={!customFood.name}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Custom Food
-                </Button>
-              ) : (
-                <Button onClick={handleScanQR}>
-                  <Camera className="mr-2 h-4 w-4" />
-                  Scan
-                </Button>
-              )}
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Healthy Eating Progress */}
-      {selectedFoods.length > 0 && (
-        <Card className="mb-4">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Daily Nutrition Goals</CardTitle>
-            <CardDescription>Track your progress toward healthy eating habits</CardDescription>
-          </CardHeader>
-          <CardContent className="pb-2">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Protein (Goal: 60g)</span>
-                  <span>{Math.round(form.getValues("protein") || 0)}g</span>
-                </div>
-                <Progress value={dailyGoalProgress.protein} className="h-2" />
-              </div>
+                </TabsContent>
+              </Tabs>
               
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Fiber (Goal: 30g)</span>
-                  <span>{Math.round(dailyGoalProgress.fiber * 0.3)}g</span>
-                </div>
-                <Progress value={dailyGoalProgress.fiber} className="h-2" />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Vegetables (Goal: 5 servings)</span>
-                  <span>{Math.round(dailyGoalProgress.vegetables * 0.05 * 100) / 100} servings</span>
-                </div>
-                <Progress value={dailyGoalProgress.vegetables} className="h-2" />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Fruits (Goal: 2 servings)</span>
-                  <span>{Math.round(dailyGoalProgress.fruits * 0.02 * 100) / 100} servings</span>
-                </div>
-                <Progress value={dailyGoalProgress.fruits} className="h-2" />
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="pt-0">
-            <Button variant="link" size="sm" className="px-0" onClick={() => {
-              toast.info("Healthy Eating Habits", {
-                description: (
-                  <ul className="text-sm space-y-1 list-disc pl-4">
-                    {healthyEatingTips.map((tip, i) => (
-                      <li key={i}>{tip}</li>
-                    ))}
-                  </ul>
-                ),
-              });
-            }}>
-              View healthy eating tips <ArrowRight className="ml-1 h-3 w-3" />
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
-
-      {selectedFoods.length > 0 ? (
-        <div className="grid grid-cols-1 gap-3">
-          {selectedFoods.map((item: any, index: number) => {
-            const food = foods.find((f) => f.id === item.food_id);
-            if (!food) return null;
-
-            return (
-              <div
-                key={`${food.id}-${index}`}
-                className="flex items-center p-3 border rounded-lg gap-3"
-              >
-                <div className="h-10 w-10 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                  {food.image ? (
-                    <img src={food.image} alt={food.name} className="h-full w-full object-cover" />
+              <DialogFooter className="flex justify-between items-center mt-4">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <div className="flex gap-2">
+                  {activeTab === "custom" ? (
+                    <Button 
+                      disabled={!customFood.name || isNaN(customFood.calories)}
+                      onClick={addCustomFood}
+                    >
+                      Add Custom Food
+                    </Button>
+                  ) : activeTab === "search" ? (
+                    <Button 
+                      disabled={!selectedFood} 
+                      onClick={addFood}
+                    >
+                      Add to Meal
+                    </Button>
                   ) : (
-                    <div className="h-full w-full flex items-center justify-center text-muted-foreground">
-                      <Database size={16} />
-                    </div>
+                    <Button 
+                      onClick={handleScanQR}
+                      disabled={isLoading}
+                    >
+                      Scan Barcode
+                    </Button>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium">{food.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {item.servings} {item.servings > 1 ? "servings" : "serving"} ({Math.round(food.calories * item.servings)} kcal)
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeFood(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
+          <Button variant="outline" onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2">
+            <Filter className="h-4 w-4" /> 
+            Filter
+          </Button>
+          
+          <Button variant="outline" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" /> 
+            Customize Meal
+          </Button>
+        </div>
+      </div>
+      
+      <Card className="border-primary/10">
+        <CardHeader className="pb-0">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg">Added Foods</CardTitle>
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Database className="h-3.5 w-3.5 mr-1" />
+              <span>Nutrition Breakdown</span>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-4">
+          {(!form.watch("foods") || form.watch("foods").length === 0) ? (
+            <div className="flex flex-col items-center justify-center py-6 text-center border border-dashed rounded-lg space-y-2">
+              <Sparkles className="h-10 w-10 text-muted-foreground" />
+              <div>
+                <p className="font-medium">No foods added yet</p>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  Click the "Add Food" button to search our database or add your own custom items
+                </p>
+              </div>
+              <Button className="mt-2" onClick={() => setIsDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" /> Add First Food
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="grid gap-2">
+                {form.watch("foods")?.map((food: any, index: number) => {
+                  const foodItem = foods.find((f) => f.id === food.food_id);
+                  
+                  if (!foodItem) return null;
+
+                  return (
+                    <div key={index} className="flex items-center justify-between p-2 rounded-md border">
+                      <div className="flex items-center gap-3">
+                        {foodItem.image && (
+                          <div
+                            className="h-10 w-10 rounded bg-muted flex-shrink-0"
+                            style={{
+                              backgroundImage: `url(${foodItem.image})`,
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                            }}
+                          />
+                        )}
+                        <div>
+                          <p className="font-medium">{foodItem.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {food.servings} {food.servings === 1 ? "serving" : "servings"} 
+                            <span className="text-primary ml-1">
+                              ({Math.round(foodItem.calories * food.servings)} kcal)
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-sm hidden md:block">
+                          <div className="grid grid-cols-3 gap-2">
+                            <Badge variant="outline" className="justify-center">
+                              P: {Math.round(foodItem.protein * food.servings)}g
+                            </Badge>
+                            <Badge variant="outline" className="justify-center">
+                              C: {Math.round(foodItem.carbs * food.servings)}g
+                            </Badge>
+                            <Badge variant="outline" className="justify-center">
+                              F: {Math.round(foodItem.fat * food.servings)}g
+                            </Badge>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeFood(index)}
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              
+              <div className="mt-4 pt-4 border-t">
+                <h4 className="font-medium mb-3">Meal Nutrition Totals</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card className="bg-muted/40">
+                    <CardContent className="p-3">
+                      <div className="text-sm font-medium">Calories</div>
+                      <div className="text-2xl font-bold">{form.watch("calories")}</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-muted/40">
+                    <CardContent className="p-3">
+                      <div className="text-sm font-medium">Protein</div>
+                      <div className="text-2xl font-bold">{form.watch("protein")}g</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-muted/40">
+                    <CardContent className="p-3">
+                      <div className="text-sm font-medium">Carbs</div>
+                      <div className="text-2xl font-bold">{form.watch("carbs")}g</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-muted/40">
+                    <CardContent className="p-3">
+                      <div className="text-sm font-medium">Fat</div>
+                      <div className="text-2xl font-bold">{form.watch("fat")}g</div>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-8 border rounded-lg bg-muted/10">
-          <div className="text-center space-y-2">
-            <p className="text-muted-foreground">No foods added yet</p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsDialogOpen(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add Your First Food
-            </Button>
-          </div>
-        </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
+      {/* Daily Goal Progress */}
+      {form.watch("foods")?.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Daily Goal Progress</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <div className="text-sm font-medium">Protein ({Math.round(dailyGoalProgress.protein)}%)</div>
+                <span className="text-sm text-muted-foreground">
+                  {Math.round(totalProtein)}g / 60g
+                </span>
+              </div>
+              <Progress value={dailyGoalProgress.protein} className="h-2" />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <div className="text-sm font-medium">Fiber ({Math.round(dailyGoalProgress.fiber)}%)</div>
+                <span className="text-sm text-muted-foreground">
+                  {Math.round(totalFiber)}g / 30g
+                </span>
+              </div>
+              <Progress value={dailyGoalProgress.fiber} className="h-2" />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <div className="text-sm font-medium">Fruits ({Math.round(dailyGoalProgress.fruits)}%)</div>
+                <span className="text-sm text-muted-foreground">
+                  {fruitCount.toFixed(1)} / 2 servings
+                </span>
+              </div>
+              <Progress value={dailyGoalProgress.fruits} className="h-2" />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <div className="text-sm font-medium">Vegetables ({Math.round(dailyGoalProgress.vegetables)}%)</div>
+                <span className="text-sm text-muted-foreground">
+                  {vegetableCount.toFixed(1)} / 5 servings
+                </span>
+              </div>
+              <Progress value={dailyGoalProgress.vegetables} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
-}
-
-function Label({ children }: { children: React.ReactNode }) {
-  return <div className="text-sm font-medium mb-1.5">{children}</div>;
 }
 

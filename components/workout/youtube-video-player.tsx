@@ -58,6 +58,8 @@ interface YouTubeVideoPlayerProps {
   mute?: boolean
   maintainAspectRatio?: boolean
   minHeight?: string
+  isMinimized?: boolean
+  onToggleMinimize?: () => void
 }
 
 export function YouTubeVideoPlayer({
@@ -67,7 +69,9 @@ export function YouTubeVideoPlayer({
   className = '',
   mute = false,
   maintainAspectRatio = true,
-  minHeight = '240px'
+  minHeight = '240px',
+  isMinimized = false,
+  onToggleMinimize
 }: YouTubeVideoPlayerProps) {
   const [videoId, setVideoId] = useState(initialVideoId)
   const [isLoading, setIsLoading] = useState(true)
@@ -182,15 +186,25 @@ export function YouTubeVideoPlayer({
                   console.warn("Could not set playback quality", error)
                 }
                 
-                // Force autoplay on mobile if needed
-                if (autoPlay && isMobile) {
+                // Force autoplay with audio on all devices
+                if (autoPlay) {
                   try {
-                    if (mute) {
-                      event.target.mute()
+                    // Ensure audio is unmuted unless mute is explicitly set
+                    if (!mute) {
+                      event.target.unMute()
                     }
                     event.target.playVideo()
+                    
+                    // For mobile, we need to handle autoplay specially
+                    if (isMobile) {
+                      // On mobile, sometimes we need to play after a user interaction
+                      document.addEventListener('touchstart', function playOnTouch() {
+                        event.target.playVideo()
+                        document.removeEventListener('touchstart', playOnTouch)
+                      }, { once: true })
+                    }
                   } catch (error) {
-                    console.warn("Could not autoplay on mobile", error)
+                    console.warn("Could not autoplay", error)
                   }
                 }
                 
@@ -199,6 +213,8 @@ export function YouTubeVideoPlayer({
                   const iframe = event.target.getIframe()
                   if (iframe) {
                     iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation')
+                    // Add allow attribute for autoplay with sound
+                    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture')
                   }
                 } catch (error) {
                   console.warn("Could not set iframe attributes", error)
@@ -250,151 +266,180 @@ export function YouTubeVideoPlayer({
         }
       }
     }
-  }, [videoId, autoPlay, onVideoEnd, mute, isMobile])
+  }, [videoId, autoPlay, onVideoEnd, isMobile, mute])
 
-  // Handle video ID changes
+  // Update videoId if the prop changes
   useEffect(() => {
-    if (isPlayerReady && playerRef.current && videoId) {
-      try {
-        setIsLoading(true)
-        playerRef.current.loadVideoById(videoId)
-        setIsLoading(false)
-      } catch (error) {
-        console.error("Error loading new video:", error)
-        setHasError(true)
-        setErrorMessage("Failed to load the requested video. Please try a different video.")
-        setIsLoading(false)
-      }
+    if (initialVideoId !== videoId) {
+      setVideoId(initialVideoId)
     }
-  }, [videoId, isPlayerReady])
+  }, [initialVideoId, videoId])
 
-  // Get a more descriptive error message based on the error code
+  // Function to get a human-readable error message from error code
   const getErrorMessage = (errorCode: number): string => {
-    switch(errorCode) {
+    switch (errorCode) {
       case 2:
-        return "Invalid video ID or URL. Please check the video ID."
+        return "Invalid video ID. Please check the video URL."
       case 5:
-        return "The requested content cannot be played. This video might be restricted or private."
+        return "The requested video cannot be played in an HTML5 player."
       case 100:
-        return "The requested video was not found. It may have been removed or marked private."
+        return "This video has been removed or is private."
       case 101:
       case 150:
-        return "The video owner does not allow embedding."
+        return "This video cannot be played in embedded players."
       default:
-        return "An error occurred. Please try again later."
+        return "An error occurred while playing the video."
     }
   }
 
-  // Retry loading the player after an error
+  // Function to retry loading the player
   const retryLoading = () => {
-    setHasError(false)
     setIsLoading(true)
-    setIsPlayerReady(false)
+    setHasError(false)
     
-    // Slight delay before retry
-    setTimeout(() => {
-      if (playerRef.current) {
-        try {
-          playerRef.current.destroy()
-          playerRef.current = null
-        } catch (error) {
-          console.error("Error destroying player on retry:", error)
-        }
+    if (playerRef.current) {
+      try {
+        playerRef.current.destroy()
+        playerRef.current = null
+      } catch (error) {
+        console.error("Error destroying player during retry:", error)
       }
-      
-      // Force re-mounting of the container
-      if (containerRef.current) {
-        containerRef.current.innerHTML = ''
-      }
-      
-      // Re-trigger the initialization useEffect
-      const videoTemp = videoId
-      setVideoId('')
-      setTimeout(() => setVideoId(videoTemp), 50)
-    }, 500)
+
+    }
+    
+    // Reload YouTube API if needed
+    if (!window.YT) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      document.head.appendChild(tag)
+    }
+    
+    // Force component re-render with a new key by toggling videoId
+    setVideoId('')
+    setTimeout(() => setVideoId(initialVideoId), 50)
   }
 
-  // Toggle fullscreen mode for the video player
+  // Toggle fullscreen mode
   const toggleFullScreen = () => {
-    setIsFullScreen(!isFullScreen)
-    
-    // If we're entering fullscreen, scroll the player into view
-    if (!isFullScreen && wrapperRef.current) {
-      setTimeout(() => {
-        wrapperRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }, 100)
+    if (isFullScreen) {
+      document.exitFullscreen().catch((err) => console.error("Error exiting fullscreen:", err))
+    } else if (wrapperRef.current) {
+      wrapperRef.current.requestFullscreen().catch((err) => console.error("Error entering fullscreen:", err))
     }
   }
 
-  // Apply responsive sizing based on container width
+  // Handle fullscreen change events
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullScreen(!!document.fullscreenElement)
+    }
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
+
+  // Calculate responsive height
   const getResponsiveHeight = () => {
-    if (!wrapperRef.current) return minHeight
+    if (!maintainAspectRatio) return minHeight
     
-    const containerWidth = wrapperRef.current.offsetWidth
+    // Standard 16:9 YouTube aspect ratio
+    const aspectRatio = 9 / 16 * 100
+    return `calc(${aspectRatio}vw - ${aspectRatio * 0.2}px)`
+  }
+
+  // Get video container style based on states
+  const getVideoContainerStyle = () => {
+    if (isFullScreen) {
+      return {
+        minHeight: '100vh',
+        height: '100vh',
+        maxHeight: '100vh',
+        width: '100%',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        zIndex: 50,
+        borderRadius: 0
+      } as React.CSSProperties
+    }
     
-    // For very small screens, use a minimum height
-    if (containerWidth < 300) return minHeight
+    if (isMinimized) {
+      return {
+        minHeight: '120px',
+        height: '120px',
+        maxHeight: '120px',
+        width: '200px',
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 40,
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        borderRadius: '8px',
+        transition: 'all 0.3s ease'
+      } as React.CSSProperties
+    }
     
-    // For standard aspect ratio (16:9)
-    const aspectRatioHeight = maintainAspectRatio ? `${containerWidth * 0.5625}px` : 'auto'
-    
-    return aspectRatioHeight
+    return {
+      minHeight: minHeight,
+      height: maintainAspectRatio ? getResponsiveHeight() : 'auto',
+      borderRadius: '0.5rem',
+      transition: 'all 0.3s ease'
+    } as React.CSSProperties
   }
 
   return (
     <div 
       ref={wrapperRef}
-      className={`relative youtube-player-wrapper transition-all duration-300 ${className} ${isFullScreen ? 'fixed inset-0 z-50 bg-black flex items-center justify-center p-4' : ''}`}
-      style={{
-        minHeight: isFullScreen ? '100vh' : minHeight,
-        width: isFullScreen ? '100%' : '100%'
-      }}
+      className={`relative overflow-hidden transition-all duration-300 ${className} ${
+        isFullScreen ? 'fixed inset-0 z-50 bg-black' : ''
+      }`}
+      style={getVideoContainerStyle()}
+      onContextMenu={(e) => e.preventDefault()} // Prevent right-click menu
     >
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm z-10">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-10">
+          <Loader2 className="h-12 w-12 animate-spin text-white" />
         </div>
       )}
       
-      {hasError ? (
-        <div className="flex flex-col items-center justify-center text-center p-6 space-y-4 bg-muted rounded-lg h-full min-h-[240px]">
-          <AlertTriangle className="h-10 w-10 text-destructive" />
-          <h3 className="font-semibold text-lg">Video Playback Error</h3>
-          <p className="text-sm text-muted-foreground">{errorMessage}</p>
-          <Button onClick={retryLoading} variant="outline" size="sm">Try Again</Button>
+      {hasError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 bg-opacity-90 z-10 p-4 text-center">
+          <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
+          <p className="text-white mb-4">{errorMessage}</p>
+          <Button onClick={retryLoading} variant="default">
+            Try Again
+          </Button>
         </div>
-      ) : (
-        <div 
-          className="relative overflow-hidden rounded-lg"
-          style={{
-            height: isFullScreen ? '100%' : getResponsiveHeight(),
-            width: '100%',
-            maxHeight: isFullScreen ? '100vh' : 'none',
-            aspectRatio: maintainAspectRatio && !isFullScreen ? '16/9' : 'auto'
-          }}
-        >
-          <div 
-            ref={containerRef} 
-            className="absolute inset-0 w-full h-full"
-            id={`youtube-player-${videoId}`}
-          />
-          
-          {isPlayerReady && (
-            <div className="absolute top-2 right-2 z-20">
-              <Button 
-                size="icon" 
-                variant="secondary" 
-                className="h-8 w-8 rounded-full opacity-70 hover:opacity-100 bg-black/50 text-white"
-                onClick={toggleFullScreen}
-              >
-                {isFullScreen ? (
-                  <Minimize2 className="h-4 w-4" />
-                ) : (
-                  <Maximize2 className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+      )}
+      
+      {/* YouTube player container */}
+      <div 
+        ref={containerRef} 
+        className="w-full h-full"
+      />
+      
+      {/* Control buttons */}
+      {isPlayerReady && !isLoading && !hasError && (
+        <div className="absolute bottom-4 right-4 flex gap-2">
+          {/* Minimize/Maximize button - only show if the callback is provided */}
+          {onToggleMinimize && (
+            <button 
+              onClick={onToggleMinimize}
+              className="bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all z-20"
+              aria-label={isMinimized ? "Maximize video" : "Minimize video"}
+            >
+              {isMinimized ? <Maximize2 className="h-5 w-5" /> : <Minimize2 className="h-5 w-5" />}
+            </button>
           )}
+          
+          {/* Fullscreen toggle button */}
+          <button 
+            onClick={toggleFullScreen}
+            className="bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-all z-20"
+            aria-label={isFullScreen ? "Exit fullscreen" : "Enter fullscreen"}
+          >
+            {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+          </button>
         </div>
       )}
     </div>

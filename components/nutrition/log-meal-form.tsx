@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast } from "@/hooks/use-toast"
-import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { Loader2, Save, Check, UtensilsCrossed } from "lucide-react"
 import { FoodSelector } from "@/components/nutrition/food-selector"
 
 const formSchema = z.object({
@@ -49,6 +49,8 @@ export function LogMealForm() {
     },
   })
 
+  const foods = form.watch("foods") || [];
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
@@ -59,7 +61,8 @@ export function LogMealForm() {
         throw userError
       }
 
-      // Insert meal
+      toast.loading("Saving your meal...");
+
       const { data: meal, error: mealError } = await supabase
         .from("meals")
         .insert({
@@ -79,7 +82,6 @@ export function LogMealForm() {
         throw mealError
       }
 
-      // Insert meal foods if any
       if (values.foods && values.foods.length > 0) {
         const mealFoods = values.foods.map((food) => ({
           meal_id: meal.id,
@@ -94,23 +96,43 @@ export function LogMealForm() {
         }
       }
 
-      toast({
-        title: "Success",
-        description: "Your meal has been logged.",
-      })
+      // Set the meal-logged flag to update nutrition stats
+      sessionStorage.setItem('meal-logged', 'true');
 
-      router.push("/nutrition")
-      router.refresh()
+      toast.dismiss();
+      toast.success("Meal Logged Successfully", {
+        description: `${values.name} has been added to your nutrition log.`,
+        icon: <Check className="h-5 w-5 text-green-500" />,
+        duration: 5000,
+        position: "top-center",
+      });
+
+      setTimeout(() => {
+        router.push("/nutrition");
+        router.refresh();
+      }, 1000);
     } catch (error: any) {
-      toast({
-        title: "Error",
+      toast.dismiss();
+      toast.error("Error Saving Meal", {
         description: error.message || "Something went wrong. Please try again.",
-        variant: "destructive",
-      })
+        icon: <UtensilsCrossed className="h-5 w-5 text-red-500" />,
+        duration: 5000,
+      });
     } finally {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (foods.length > 0) {
+      const totalCalories = form.getValues("calories") || 0;
+      toast.info(`Food Item ${foods.length > 1 ? 'Update' : 'Added'}`, {
+        description: `You now have ${foods.length} food ${foods.length === 1 ? 'item' : 'items'} (${totalCalories} calories) in your meal`,
+        duration: 3000,
+        position: "bottom-right",
+      });
+    }
+  }, [foods.length]);
 
   return (
     <Form {...form}>
@@ -208,15 +230,24 @@ export function LogMealForm() {
           />
         </div>
         <FoodSelector form={form} />
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging...
-            </>
-          ) : (
-            "Log Meal"
-          )}
-        </Button>
+        <div className="flex justify-center mt-8">
+          <Button 
+            type="submit" 
+            disabled={isLoading || foods.length === 0} 
+            className="w-full md:w-1/3 bg-green-600 hover:bg-green-700" 
+            size="lg"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Logging Meal...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-5 w-5" /> Save Meal {foods.length > 0 && `(${foods.length} items)`}
+              </>
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   )

@@ -431,12 +431,12 @@ export function EnhancedSupportCenter() {
 
     toast({
       title: "Support request submitted",
-      description: "We'll get back to you within 24 hours.",
+      description: "We'll get back to you as soon as possible.",
     })
 
     addNotification({
       title: "Support Request Received",
-      message: "We've received your support request and will respond within 24 hours.",
+      message: "Your support request has been sent to innocentgh10@gmail.com. We'll respond shortly.",
       type: "success"
     })
 
@@ -696,7 +696,17 @@ export function EnhancedSupportCenter() {
             <CardHeader>
               <CardTitle>Contact Support</CardTitle>
               <CardDescription>
-                We typically respond within 24 hours
+                Get in touch with our support team
+                <div className="mt-2 text-sm">
+                  <div className="flex items-center mt-1">
+                    <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
+                    <span>innocentgh10@gmail.com</span>
+                  </div>
+                  <div className="flex items-center mt-1">
+                    <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
+                    <span>+233550477759</span>
+                  </div>
+                </div>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

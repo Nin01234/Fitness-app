@@ -426,23 +426,105 @@ img, video, iframe {
   }
 }
 
-/* Ensure YouTube videos are responsive */
-.video-container {
+/* Light YouTube Embeds by @labnol */
+.youtube-lite {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 */
+  padding-bottom: 56.25%;
   height: 0;
   overflow: hidden;
   max-width: 100%;
+  background: #000;
+  margin: 5px;
+  cursor: pointer;
 }
 
-.video-container iframe,
-.video-container object,
-.video-container embed {
+.youtube-lite img {
+  object-fit: cover;
+  display: block;
+  left: 0;
+  bottom: 0;
+  margin: auto;
+  max-width: 100%;
+  width: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  border: none;
+  height: auto;
+  cursor: pointer;
+  -webkit-transition: 0.4s all;
+  -moz-transition: 0.4s all;
+  transition: 0.4s all;
+}
+
+.youtube-lite img:hover {
+  -webkit-filter: brightness(75%);
+}
+
+.youtube-lite .play {
+  height: 48px;
+  width: 68px;
+  left: 50%;
+  top: 50%;
+  margin-left: -34px;
+  margin-top: -24px;
+  position: absolute;
+  background: url('https://i.ibb.co/j3jcJKv/yt.png') no-repeat;
+  cursor: pointer;
+}
+
+/* Responsive YouTube video container */
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+  background: #000;
+  margin-bottom: 1rem;
+}
+
+.video-container iframe {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
+  background: transparent;
+}
+
+/* Additional styles for minimized videos */
+.video-container.minimized {
+  height: auto;
+  padding-bottom: 0;
+}
+
+.video-container.minimized iframe {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 240px;
+  height: 135px;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+/* Dynamic AI Assistant content styles */
+.ai-assistant-content {
+  animation: fadeInOut 8s infinite;
+  transition: all 0.5s ease;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Ensure the toast notifications are visible on all pages */
+.toast-container {
+  z-index: 9999;
 }
 
 /* Marquee animation */
