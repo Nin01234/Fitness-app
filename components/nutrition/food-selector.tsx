@@ -14,7 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Plus, X, Camera, Search, Sparkles, ArrowRight, Info, Database, Filter, Settings } from "lucide-react"
+import { Plus, X, Camera, Search, Sparkles, ArrowRight, Info, Database, Filter, Settings, Check, Save } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
@@ -148,42 +148,112 @@ export function FoodSelector({ form }: FoodSelectorProps) {
     return matchesSearch && matchesCategory;
   });
 
+  // Handle adding a food item
   const addFood = () => {
     if (!selectedFood) return;
 
-    const currentFoods = form.getValues("foods") || [];
+    try {
+      const currentFoods = form.getValues("foods") || [];
 
-    form.setValue("foods", [
-      ...currentFoods,
-      {
-        food_id: selectedFood,
-        servings,
-      },
-    ]);
+      // Check if the food is already in the list
+      const existingIndex = currentFoods.findIndex(item => item.food_id === selectedFood);
+      if (existingIndex >= 0) {
+        // Update servings instead of adding a duplicate
+        const updatedFoods = [...currentFoods];
+        updatedFoods[existingIndex].servings += servings;
+        form.setValue("foods", updatedFoods);
+        
+        // Update UI
+        toast.success(`Updated ${foods.find(f => f.id === selectedFood)?.name} quantity`, {
+          description: `Increased to ${updatedFoods[existingIndex].servings} servings`,
+        });
+      } else {
+        // Add new food item
+        form.setValue("foods", [
+          ...currentFoods,
+          {
+            food_id: selectedFood,
+            servings,
+          },
+        ]);
+      }
 
-    // Update nutrition values
-    const food = foods.find((f) => f.id === selectedFood);
-    if (food) {
-      const currentCalories = form.getValues("calories") || 0;
-      const currentProtein = form.getValues("protein") || 0;
-      const currentCarbs = form.getValues("carbs") || 0;
-      const currentFat = form.getValues("fat") || 0;
+      // Update nutrition values
+      const food = foods.find((f) => f.id === selectedFood);
+      if (food) {
+        const currentCalories = form.getValues("calories") || 0;
+        const currentProtein = form.getValues("protein") || 0;
+        const currentCarbs = form.getValues("carbs") || 0;
+        const currentFat = form.getValues("fat") || 0;
 
-      form.setValue("calories", currentCalories + food.calories * servings);
-      form.setValue("protein", currentProtein + food.protein * servings);
-      form.setValue("carbs", currentCarbs + food.carbs * servings);
-      form.setValue("fat", currentFat + food.fat * servings);
-      
-      toast.success(`Added ${food.name} to your meal`, {
-        description: `${Math.round(food.calories * servings)} calories, ${Math.round(food.protein * servings)}g protein`,
+        form.setValue("calories", Math.round(currentCalories + food.calories * servings));
+        form.setValue("protein", +(currentProtein + food.protein * servings).toFixed(1));
+        form.setValue("carbs", +(currentCarbs + food.carbs * servings).toFixed(1));
+        form.setValue("fat", +(currentFat + food.fat * servings).toFixed(1));
+        
+        // Save selected foods to localStorage for persistence
+        const foodsArray = form.getValues("foods") || [];
+        localStorage.setItem('temp_meal_foods', JSON.stringify(foodsArray));
+        localStorage.setItem('temp_meal_nutrition', JSON.stringify({
+          calories: form.getValues("calories"),
+          protein: form.getValues("protein"),
+          carbs: form.getValues("carbs"),
+          fat: form.getValues("fat")
+        }));
+        
+        toast.success(`Added ${food.name} to your meal`, {
+          description: `${Math.round(food.calories * servings)} calories, ${Math.round(food.protein * servings)}g protein`,
+        });
+      }
+
+      // Reset form
+      setSelectedFood("");
+      setServings(1);
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Error adding food:", error);
+      toast.error("Failed to add food item", {
+        description: "Please try again or select a different food item."
       });
     }
-
-    // Reset form
-    setSelectedFood("");
-    setServings(1);
-    setIsDialogOpen(false);
   };
+
+  // Load saved meal data from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedFoods = localStorage.getItem('temp_meal_foods');
+      const savedNutrition = localStorage.getItem('temp_meal_nutrition');
+      
+      if (savedFoods) {
+        const foodsArray = JSON.parse(savedFoods);
+        form.setValue("foods", foodsArray);
+      }
+      
+      if (savedNutrition) {
+        const nutrition = JSON.parse(savedNutrition);
+        form.setValue("calories", nutrition.calories || 0);
+        form.setValue("protein", nutrition.protein || 0);
+        form.setValue("carbs", nutrition.carbs || 0);
+        form.setValue("fat", nutrition.fat || 0);
+      }
+    } catch (error) {
+      console.error("Error loading saved meal data:", error);
+    }
+  }, [form]);
+
+  // Clear temp storage when form is submitted
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Don't clear data when just navigating away
+      // localStorage.removeItem('temp_meal_foods');
+      // localStorage.removeItem('temp_meal_nutrition');
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   const addCustomFood = () => {
     if (!customFood.name) return;
@@ -254,19 +324,26 @@ export function FoodSelector({ form }: FoodSelectorProps) {
       const currentCarbs = form.getValues("carbs") || 0;
       const currentFat = form.getValues("fat") || 0;
 
-      form.setValue("calories", currentCalories - food.calories * foodToRemove.servings);
-      form.setValue("protein", currentProtein - food.protein * foodToRemove.servings);
-      form.setValue("carbs", currentCarbs - food.carbs * foodToRemove.servings);
-      form.setValue("fat", currentFat - food.fat * foodToRemove.servings);
-      
-      toast.info(`Removed ${food.name} from your meal`, {
-        description: `${Math.round(food.calories * foodToRemove.servings)} calories removed`
-      });
+      form.setValue("calories", Math.round(currentCalories - food.calories * foodToRemove.servings));
+      form.setValue("protein", +(currentProtein - food.protein * foodToRemove.servings).toFixed(1));
+      form.setValue("carbs", +(currentCarbs - food.carbs * foodToRemove.servings).toFixed(1));
+      form.setValue("fat", +(currentFat - food.fat * foodToRemove.servings).toFixed(1));
     }
 
-    const newFoods = [...currentFoods];
-    newFoods.splice(index, 1);
-    form.setValue("foods", newFoods);
+    const updatedFoods = [...currentFoods];
+    updatedFoods.splice(index, 1);
+    form.setValue("foods", updatedFoods);
+    
+    // Update localStorage
+    localStorage.setItem('temp_meal_foods', JSON.stringify(updatedFoods));
+    localStorage.setItem('temp_meal_nutrition', JSON.stringify({
+      calories: form.getValues("calories"),
+      protein: form.getValues("protein"),
+      carbs: form.getValues("carbs"),
+      fat: form.getValues("fat")
+    }));
+
+    toast.info(`Removed ${food?.name || "food item"} from your meal`);
   };
 
   const handleScanQR = () => {
@@ -558,14 +635,16 @@ export function FoodSelector({ form }: FoodSelectorProps) {
                       disabled={!customFood.name || isNaN(customFood.calories)}
                       onClick={addCustomFood}
                     >
-                      Add Custom Food
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Custom Food
                     </Button>
                   ) : activeTab === "search" ? (
                     <Button 
                       disabled={!selectedFood} 
                       onClick={addFood}
                     >
-                      Add to Meal
+                      <Check className="h-4 w-4 mr-2" />
+                      Save and Add to Meal
                     </Button>
                   ) : (
                     <Button 

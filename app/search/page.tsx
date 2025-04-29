@@ -34,7 +34,7 @@ const mockNutrition = [
   { id: 3, title: "Low-Carb Diet Guide", type: "Diet Plan", calories: "1500 cal", target: "Weight Loss", image: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
 ];
 
-const mockArticles = [
+const mockFeatures = [
   { id: 1, title: "The Science of Muscle Growth", type: "Fitness Science", readTime: "5 min read", author: "Dr. Fitness", date: "2023-10-12", image: "https://images.unsplash.com/photo-1554284126-aa88f22d8b74?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
   { id: 2, title: "Nutrition Myths Debunked", type: "Nutrition", readTime: "8 min read", author: "Nutritionist Pro", date: "2023-11-05", image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
   { id: 3, title: "Recovery Strategies for Athletes", type: "Recovery", readTime: "6 min read", author: "Coach Smith", date: "2023-09-28", image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
@@ -48,7 +48,7 @@ export default function SearchPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [filteredWorkouts, setFilteredWorkouts] = useState(mockWorkouts)
   const [filteredNutrition, setFilteredNutrition] = useState(mockNutrition)
-  const [filteredArticles, setFilteredArticles] = useState(mockArticles)
+  const [filteredFeatures, setFilteredFeatures] = useState(mockFeatures)
   
   useEffect(() => {
     // Simulate API call with loading state
@@ -74,17 +74,17 @@ export default function SearchPage() {
           )
         )
         
-        setFilteredArticles(
-          mockArticles.filter(article => 
-            article.title.toLowerCase().includes(lowercaseQuery) || 
-            article.type.toLowerCase().includes(lowercaseQuery)
+        setFilteredFeatures(
+          mockFeatures.filter(feature => 
+            feature.title.toLowerCase().includes(lowercaseQuery) || 
+            feature.type.toLowerCase().includes(lowercaseQuery)
           )
         )
       } else {
         // If no query, show all results
         setFilteredWorkouts(mockWorkouts)
         setFilteredNutrition(mockNutrition)
-        setFilteredArticles(mockArticles)
+        setFilteredFeatures(mockFeatures)
       }
       
       setIsLoading(false)
@@ -92,7 +92,7 @@ export default function SearchPage() {
   }, [query])
   
   // Get total results count
-  const totalResults = filteredWorkouts.length + filteredNutrition.length + filteredArticles.length
+  const totalResults = filteredWorkouts.length + filteredNutrition.length + filteredFeatures.length
   
   return (
     <div className="container py-10">
@@ -109,7 +109,7 @@ export default function SearchPage() {
           </p>
         </div>
         
-        <SearchBar defaultValue={query} placeholder="Search workouts, nutrition, articles..." className="md:max-w-md" />
+        <SearchBar defaultValue={query} placeholder="Search workouts, nutrition, features..." className="md:max-w-md" />
       </div>
       
       {isLoading ? (
@@ -123,7 +123,7 @@ export default function SearchPage() {
               <TabsTrigger value="all">All Results ({totalResults})</TabsTrigger>
               <TabsTrigger value="workouts">Workouts ({filteredWorkouts.length})</TabsTrigger>
               <TabsTrigger value="nutrition">Nutrition ({filteredNutrition.length})</TabsTrigger>
-              <TabsTrigger value="articles">Articles ({filteredArticles.length})</TabsTrigger>
+              <TabsTrigger value="features">Features ({filteredFeatures.length})</TabsTrigger>
             </TabsList>
             
             <TabsContent value="all" className="mt-6">
@@ -235,45 +235,45 @@ export default function SearchPage() {
                     </div>
                   )}
                   
-                  {filteredArticles.length > 0 && (
+                  {filteredFeatures.length > 0 && (
                     <div>
                       <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-bold flex items-center gap-2">
-                          <FileText className="h-5 w-5 text-primary" /> Articles
+                          <FileText className="h-5 w-5 text-primary" /> Features
                         </h2>
                         <Button variant="link" asChild className="gap-1">
-                          <Link href="/articles">
+                          <Link href="/features">
                             View all <ArrowRight className="h-4 w-4" />
                           </Link>
                         </Button>
                       </div>
                       <div className="grid gap-6 md:grid-cols-3">
-                        {filteredArticles.map(article => (
-                          <Card key={article.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                        {filteredFeatures.map(feature => (
+                          <Card key={feature.id} className="overflow-hidden hover:shadow-md transition-shadow">
                             <div className="relative h-40">
                               <Image 
-                                src={article.image} 
-                                alt={article.title}
+                                src={feature.image} 
+                                alt={feature.title}
                                 fill
                                 className="object-cover"
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                               <div className="absolute bottom-3 left-3 flex gap-2">
-                                <Badge className="bg-blue-600/80 hover:bg-blue-600">{article.type}</Badge>
+                                <Badge className="bg-blue-600/80 hover:bg-blue-600">{feature.type}</Badge>
                               </div>
                             </div>
                             <CardHeader className="pb-2">
-                              <CardTitle className="text-lg">{article.title}</CardTitle>
+                              <CardTitle className="text-lg">{feature.title}</CardTitle>
                               <CardDescription className="flex items-center justify-between">
-                                <span>By {article.author}</span>
+                                <span>By {feature.author}</span>
                                 <span className="flex items-center text-xs text-muted-foreground">
-                                  <Clock className="h-3 w-3 mr-1" /> {article.readTime}
+                                  <Clock className="h-3 w-3 mr-1" /> {feature.readTime}
                                 </span>
                               </CardDescription>
                             </CardHeader>
                             <CardContent>
                               <Button asChild className="w-full">
-                                <Link href={`/articles/${article.id}`}>Read Article</Link>
+                                <Link href={`/features/${feature.id}`}>Read Feature</Link>
                               </Button>
                             </CardContent>
                           </Card>
@@ -386,47 +386,46 @@ export default function SearchPage() {
               )}
             </TabsContent>
             
-            <TabsContent value="articles" className="mt-6">
-              {/* Similar to workout tab with article items */}
-              {filteredArticles.length === 0 ? (
+            <TabsContent value="features" className="mt-6">
+              {filteredFeatures.length === 0 ? (
                 <div className="text-center py-12">
                   <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-medium mb-2">No article results found</h3>
+                  <h3 className="text-xl font-medium mb-2">No feature results found</h3>
                   <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                    We couldn't find any articles matching "{query}". Try different keywords or browse our article library.
+                    We couldn't find any features matching "{query}". Try different keywords or browse our feature library.
                   </p>
                   <Button variant="outline" asChild>
-                    <Link href="/articles">Browse All Articles</Link>
+                    <Link href="/features">Browse All Features</Link>
                   </Button>
                 </div>
               ) : (
                 <div className="grid gap-6 md:grid-cols-3">
-                  {filteredArticles.map(article => (
-                    <Card key={article.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                  {filteredFeatures.map(feature => (
+                    <Card key={feature.id} className="overflow-hidden hover:shadow-md transition-shadow">
                       <div className="relative h-48">
                         <Image 
-                          src={article.image} 
-                          alt={article.title}
+                          src={feature.image} 
+                          alt={feature.title}
                           fill
                           className="object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                         <div className="absolute bottom-3 left-3">
-                          <Badge className="bg-blue-600/80 hover:bg-blue-600">{article.type}</Badge>
+                          <Badge className="bg-blue-600/80 hover:bg-blue-600">{feature.type}</Badge>
                         </div>
                       </div>
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-lg">{article.title}</CardTitle>
+                        <CardTitle className="text-lg">{feature.title}</CardTitle>
                         <CardDescription className="flex items-center justify-between">
-                          <span>By {article.author}</span>
+                          <span>By {feature.author}</span>
                           <span className="flex items-center text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3 mr-1" /> {article.readTime}
+                            <Clock className="h-3 w-3 mr-1" /> {feature.readTime}
                           </span>
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <Button asChild className="w-full">
-                          <Link href={`/articles/${article.id}`}>Read Article</Link>
+                          <Link href={`/features/${feature.id}`}>Read Feature</Link>
                         </Button>
                       </CardContent>
                     </Card>

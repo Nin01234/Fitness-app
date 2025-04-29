@@ -341,8 +341,10 @@ export default async function WorkoutsPage() {
           </div>
             </TabsContent>
 
-        <TabsContent value="tracking" className="space-y-6">
-          <ActivityTracking />
+        <TabsContent value="tracking" className="p-0">
+          <div className="rounded-lg overflow-hidden">
+            <ActivityTracking />
+          </div>
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-6">

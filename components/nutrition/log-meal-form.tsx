@@ -51,77 +51,42 @@ export function LogMealForm() {
 
   const foods = form.watch("foods") || [];
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      const { data: userData, error: userError } = await supabase.auth.getUser()
-
-      if (userError) {
-        throw userError
-      }
-
-      toast.loading("Saving your meal...");
-
-      const { data: meal, error: mealError } = await supabase
-        .from("meals")
-        .insert({
-          user_id: userData.user.id,
-          name: values.name,
-          meal_type: values.meal_type,
-          calories: values.calories,
-          protein: values.protein,
-          carbs: values.carbs,
-          fat: values.fat,
-          date: new Date().toISOString(),
-        })
-        .select()
-        .single()
-
-      if (mealError) {
-        throw mealError
-      }
-
-      if (values.foods && values.foods.length > 0) {
-        const mealFoods = values.foods.map((food) => ({
-          meal_id: meal.id,
-          food_id: food.food_id,
-          servings: food.servings,
-        }))
-
-        const { error: foodsError } = await supabase.from("meal_foods").insert(mealFoods)
-
-        if (foodsError) {
-          throw foodsError
-        }
-      }
-
-      // Set the meal-logged flag to update nutrition stats
-      sessionStorage.setItem('meal-logged', 'true');
-
-      toast.dismiss();
-      toast.success("Meal Logged Successfully", {
-        description: `${values.name} has been added to your nutrition log.`,
-        icon: <Check className="h-5 w-5 text-green-500" />,
-        duration: 5000,
-        position: "top-center",
+      setIsLoading(true);
+      
+      const response = await fetch("/api/nutrition/log-meal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
       });
 
-      setTimeout(() => {
-        router.push("/nutrition");
-        router.refresh();
-      }, 1000);
-    } catch (error: any) {
-      toast.dismiss();
-      toast.error("Error Saving Meal", {
-        description: error.message || "Something went wrong. Please try again.",
-        icon: <UtensilsCrossed className="h-5 w-5 text-red-500" />,
-        duration: 5000,
+      if (!response.ok) {
+        throw new Error("Failed to log meal");
+      }
+
+      // Clear localStorage after successful submission
+      localStorage.removeItem('temp_meal_foods');
+      localStorage.removeItem('temp_meal_nutrition');
+      
+      toast.success("Meal logged successfully", {
+        description: "Your meal has been added to your nutrition log",
+      });
+      
+      form.reset(form.formState.defaultValues);
+      
+      router.push("/nutrition");
+    } catch (error) {
+      console.error("Error logging meal:", error);
+      toast.error("Failed to log meal", {
+        description: "Please try again later",
       });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (foods.length > 0) {

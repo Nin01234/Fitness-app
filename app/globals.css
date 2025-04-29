@@ -473,15 +473,16 @@ img, video, iframe {
   cursor: pointer;
 }
 
-/* Responsive YouTube video container */
+/* Video container styling - improved for better positioning and responsiveness */
 .video-container {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
-  height: 0;
+  width: 100%;
+  aspect-ratio: 16/9;
   overflow: hidden;
-  max-width: 100%;
-  background: #000;
-  margin-bottom: 1rem;
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .video-container iframe {
@@ -490,25 +491,49 @@ img, video, iframe {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
-  background: transparent;
+  border: 0;
 }
 
-/* Additional styles for minimized videos */
+/* Video player in workout pages */
+.workout-video-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Responsive adjustments for video containers */
+@media (max-width: 640px) {
+  .video-container {
+    aspect-ratio: 16/9;
+    max-height: 240px;
+  }
+  
+  .workout-video-container {
+    max-height: 240px;
+  }
+}
+
+/* Minimized video state */
 .video-container.minimized {
-  height: auto;
-  padding-bottom: 0;
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  width: 280px;
+  height: 157px;
+  z-index: 50;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
 
-.video-container.minimized iframe {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 240px;
-  height: 135px;
-  z-index: 50;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
+/* For mobile screens when minimized */
+@media (max-width: 640px) {
+  .video-container.minimized {
+    width: 200px;
+    height: 112px;
+  }
 }
 
 /* Dynamic AI Assistant content styles */

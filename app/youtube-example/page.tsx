@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react"
 
 export default function YouTubeExamplePage() {
   const [isLoading, setIsLoading] = useState(true)
-  const [videoId, setVideoId] = useState<string>("dQw4w9WgXcQ") // Default example video
+  const [videoId, setVideoId] = useState<string>("AzV3EA-1-yM") // Updated default example video
 
   // Simulate loading
   useEffect(() => {
@@ -51,22 +51,22 @@ export default function YouTubeExamplePage() {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Button 
-          onClick={() => setVideoId("dQw4w9WgXcQ")}
-          variant={videoId === "dQw4w9WgXcQ" ? "default" : "outline"}
+          onClick={() => setVideoId("AzV3EA-1-yM")}
+          variant={videoId === "AzV3EA-1-yM" ? "default" : "outline"}
         >
           Example Video 1
         </Button>
         
         <Button 
-          onClick={() => setVideoId("9bZkp7q19f0")}
-          variant={videoId === "9bZkp7q19f0" ? "default" : "outline"}
+          onClick={() => setVideoId("ml6cT4AZdqI")}
+          variant={videoId === "ml6cT4AZdqI" ? "default" : "outline"}
         >
           Example Video 2
         </Button>
         
         <Button 
-          onClick={() => setVideoId("jNQXAC9IVRw")}
-          variant={videoId === "jNQXAC9IVRw" ? "default" : "outline"}
+          onClick={() => setVideoId("UItWltVZZmE")}
+          variant={videoId === "UItWltVZZmE" ? "default" : "outline"}
         >
           Example Video 3
         </Button>
@@ -84,11 +84,11 @@ export default function YouTubeExamplePage() {
 {`import { YouTubeVideoPlayer } from "@/components/youtube-video-player";
 
 // Basic usage
-<YouTubeVideoPlayer videoId="dQw4w9WgXcQ" />
+<YouTubeVideoPlayer videoId="AzV3EA-1-yM" />
 
 // With all options
 <YouTubeVideoPlayer 
-  videoId="dQw4w9WgXcQ"
+  videoId="AzV3EA-1-yM"
   autoPlay={true}
   onVideoEnd={() => console.log("Video ended")}
   className="rounded-lg"

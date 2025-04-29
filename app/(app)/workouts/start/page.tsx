@@ -544,52 +544,47 @@ export default function StartExercisePage() {
               ) : (
                 <div className="py-4">
                   {/* YouTube Video Demonstration */}
-                  <div className={`rounded-xl overflow-hidden mb-6 relative video-container ${videoMinimized ? 'h-0' : ''}`}>
-                    {currentVideo && (
-                      <>
-                        <YouTubeVideoPlayer 
-                          videoId={currentVideo.videoId} 
-                          autoPlay={true}
+                  {!isResting && currentExercise && (
+                    <div className="mb-8">
+                      <h3 className="text-lg font-medium mb-3">Exercise Instructions</h3>
+                      <div className="video-container bg-black/5 rounded-lg overflow-hidden shadow-md">
+                        <YouTubeVideoPlayer
+                          videoId={currentVideo?.videoId || findBestVideoMatch(currentExercise.name).videoId}
                           mute={videoMuted}
+                          autoPlay={true}
                           maintainAspectRatio={true}
-                          minHeight="240px"
                           isMinimized={videoMinimized}
                           onToggleMinimize={toggleVideoMinimized}
-                          className={videoMinimized ? 'absolute' : ''}
+                          className="w-full"
                         />
-                        {!videoMinimized && (
-                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-white">
-                            <div className="text-sm font-medium">{currentVideo.title}</div>
-                            <div className="text-xs opacity-80">{currentVideo.channel}</div>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="text-lg font-semibold">{currentExercise?.name}</div>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={toggleVideoMute}
-                        className="h-8 w-8"
-                        title={videoMuted ? "Unmute video" : "Mute video"}
-                      >
-                        {videoMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={toggleVideoMinimized}
-                        className="h-8 w-8"
-                        title={videoMinimized ? "Maximize video" : "Minimize video"}
-                      >
-                        {videoMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
-                      </Button>
+                      </div>
+                      <div className="flex justify-between items-center mt-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            From: {currentVideo?.channel || findBestVideoMatch(currentExercise.name).channel}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={toggleVideoMute}
+                            title={videoMuted ? "Unmute video" : "Mute video"}
+                          >
+                            {videoMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={toggleVideoMinimized}
+                            title={videoMinimized ? "Maximize video" : "Minimize video"}
+                          >
+                            {videoMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="grid md:grid-cols-2 gap-4 mb-6">
                     <div className="bg-muted p-4 rounded-lg">

@@ -4,8 +4,9 @@ import { useState, FormEvent, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, X, ArrowRight, Clock, Dumbbell, Utensils, FileText } from "lucide-react"
+import { Search, X, ArrowRight, Clock, Dumbbell, Utensils, FileText, ListIcon } from "lucide-react"
 import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 // Mock recent searches and popular searches
 const POPULAR_SEARCHES = [
@@ -177,10 +178,10 @@ export function SearchBar({
               </div>
               <div 
                 className="flex items-center gap-2 px-2 py-1.5 hover:bg-muted rounded-md cursor-pointer text-sm"
-                onClick={() => router.push('/articles')}
+                onClick={() => router.push('/features')}
               >
-                <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <span>Articles</span>
+                <ListIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <span>Features</span>
               </div>
               <div 
                 className="flex items-center gap-2 px-2 py-1.5 hover:bg-muted rounded-md cursor-pointer text-sm"

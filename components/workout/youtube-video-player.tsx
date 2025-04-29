@@ -351,39 +351,40 @@ export function YouTubeVideoPlayer({
   const getVideoContainerStyle = () => {
     if (isFullScreen) {
       return {
-        minHeight: '100vh',
-        height: '100vh',
-        maxHeight: '100vh',
-        width: '100%',
         position: 'fixed',
         top: 0,
         left: 0,
-        zIndex: 50,
-        borderRadius: 0
+        width: '100vw',
+        height: '100vh',
+        zIndex: 999,
+        backgroundColor: '#000',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
       } as React.CSSProperties
     }
     
     if (isMinimized) {
       return {
-        minHeight: '120px',
-        height: '120px',
-        maxHeight: '120px',
-        width: '200px',
         position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        zIndex: 40,
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        borderRadius: '8px',
-        transition: 'all 0.3s ease'
+        bottom: '1rem',
+        right: '1rem',
+        width: isMobile ? '200px' : '280px',
+        height: isMobile ? '112px' : '158px',
+        zIndex: 100,
+        borderRadius: '0.5rem',
+        overflow: 'hidden',
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
       } as React.CSSProperties
     }
     
     return {
-      minHeight: minHeight,
-      height: maintainAspectRatio ? getResponsiveHeight() : 'auto',
+      width: '100%',
+      height: maintainAspectRatio ? 'auto' : minHeight,
+      aspectRatio: maintainAspectRatio ? '16/9' : 'auto',
       borderRadius: '0.5rem',
-      transition: 'all 0.3s ease'
+      overflow: 'hidden',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
     } as React.CSSProperties
   }
 

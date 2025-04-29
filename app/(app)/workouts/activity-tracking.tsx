@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Footprints, Heart, Activity, Clock, BarChart, Play, AreaChart, Trophy, Waves, Mountain, Timer, Target, Droplet, SmartphoneCharging, AlertTriangle, MapPin, Navigation, Thermometer, Cloud, Wind, Smartphone, Calendar, Dumbbell, Users } from "lucide-react"
+import { Footprints, Heart, Activity, Clock, BarChart, Play, AreaChart, Trophy, Waves, Mountain, Timer, Target, Droplet, SmartphoneCharging, AlertTriangle, MapPin, Navigation, Thermometer, Cloud, Wind, Smartphone, Calendar, Dumbbell, Users, ChevronRight } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { YouTubeVideoPlayer } from "@/components/workout/youtube-video-player"
 import { Progress } from "@/components/ui/progress"
@@ -673,6 +673,20 @@ export function ActivityTracking() {
     return deg * (Math.PI/180)
   }
 
+  // Add this CSS class at the end of the export function, before the return statement
+  // to ensure consistent video containers throughout the component:
+
+  const videoContainerStyle = {
+    overflow: 'hidden',
+    borderRadius: '0.5rem',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    aspectRatio: '16/9',
+    width: '100%',
+    marginBottom: '1rem',
+    marginTop: '0.5rem',
+    background: 'rgba(0, 0, 0, 0.02)'
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-2">
@@ -752,22 +766,24 @@ export function ActivityTracking() {
           <CardFooter className="p-4 pt-0">
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  <Play className="mr-2 h-4 w-4" />
-                  Watch Tutorial
+                <Button variant="outline" className="w-full justify-between font-normal">
+                  <span className="flex items-center">
+                    <Play className="mr-2 h-5 w-5 text-indigo-500" />
+                    {activityVideos.walking.title}
+                  </span>
+                  <ChevronRight className="h-4 w-4 opacity-50" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl p-0">
-                <DialogHeader className="p-4 border-b">
-                  <DialogTitle>How to Track Your Daily Steps</DialogTitle>
-                  <DialogDescription>Learn effective ways to monitor your step count</DialogDescription>
+              <DialogContent className="sm:max-w-[800px]">
+                <DialogHeader>
+                  <DialogTitle>{activityVideos.walking.title}</DialogTitle>
+                  <DialogDescription>{activityVideos.walking.description}</DialogDescription>
                 </DialogHeader>
-                <div className="aspect-video w-full">
+                <div className="video-container overflow-hidden rounded-lg shadow-md">
                   <YouTubeVideoPlayer
                     videoId={activityVideos.walking.videoId}
-                    autoPlay={true}
+                    maintainAspectRatio={true}
                     className="w-full h-full"
-                    mute={true}
                   />
                 </div>
               </DialogContent>
@@ -820,22 +836,24 @@ export function ActivityTracking() {
           <CardFooter className="p-4 pt-0">
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  <Play className="mr-2 h-4 w-4" />
-                  Watch Tutorial
+                <Button variant="outline" className="w-full justify-between font-normal">
+                  <span className="flex items-center">
+                    <Play className="mr-2 h-5 w-5 text-indigo-500" />
+                    {activityVideos.running.title}
+                  </span>
+                  <ChevronRight className="h-4 w-4 opacity-50" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl p-0">
-                <DialogHeader className="p-4 border-b">
-                  <DialogTitle>Heart Rate Monitoring Basics</DialogTitle>
-                  <DialogDescription>Understanding your heart rate during exercise</DialogDescription>
+              <DialogContent className="sm:max-w-[800px]">
+                <DialogHeader>
+                  <DialogTitle>{activityVideos.running.title}</DialogTitle>
+                  <DialogDescription>{activityVideos.running.description}</DialogDescription>
                 </DialogHeader>
-                <div className="aspect-video w-full">
+                <div className="video-container overflow-hidden rounded-lg shadow-md">
                   <YouTubeVideoPlayer
                     videoId={activityVideos.running.videoId}
-                    autoPlay={true}
+                    maintainAspectRatio={true}
                     className="w-full h-full"
-                    mute={true}
                   />
                 </div>
               </DialogContent>
@@ -891,22 +909,24 @@ export function ActivityTracking() {
           <CardFooter className="p-4 pt-0">
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  <Play className="mr-2 h-4 w-4" />
-                  Watch Tutorial
+                <Button variant="outline" className="w-full justify-between font-normal">
+                  <span className="flex items-center">
+                    <Play className="mr-2 h-5 w-5 text-indigo-500" />
+                    {activityVideos.cycling.title}
+                  </span>
+                  <ChevronRight className="h-4 w-4 opacity-50" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl p-0">
-                <DialogHeader className="p-4 border-b">
-                  <DialogTitle>Getting Started with Activity Tracking</DialogTitle>
-                  <DialogDescription>Learn how to track your activity effectively</DialogDescription>
+              <DialogContent className="sm:max-w-[800px]">
+                <DialogHeader>
+                  <DialogTitle>{activityVideos.cycling.title}</DialogTitle>
+                  <DialogDescription>{activityVideos.cycling.description}</DialogDescription>
                 </DialogHeader>
-                <div className="aspect-video w-full">
+                <div className="video-container overflow-hidden rounded-lg shadow-md">
                   <YouTubeVideoPlayer
                     videoId={activityVideos.cycling.videoId}
-                    autoPlay={true}
+                    maintainAspectRatio={true}
                     className="w-full h-full"
-                    mute={true}
                   />
                 </div>
               </DialogContent>
@@ -975,22 +995,24 @@ export function ActivityTracking() {
           <CardFooter className="p-4 pt-0">
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  <Play className="mr-2 h-4 w-4" />
-                  Watch Tutorial
+                <Button variant="outline" className="w-full justify-between font-normal">
+                  <span className="flex items-center">
+                    <Play className="mr-2 h-5 w-5 text-indigo-500" />
+                    {activityVideos.swimming.title}
+                  </span>
+                  <ChevronRight className="h-4 w-4 opacity-50" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl p-0">
-                <DialogHeader className="p-4 border-b">
-                  <DialogTitle>Swimming Techniques for Fitness</DialogTitle>
-                  <DialogDescription>Learn effective swimming techniques for a great workout</DialogDescription>
+              <DialogContent className="sm:max-w-[800px]">
+                <DialogHeader>
+                  <DialogTitle>{activityVideos.swimming.title}</DialogTitle>
+                  <DialogDescription>{activityVideos.swimming.description}</DialogDescription>
                 </DialogHeader>
-                <div className="aspect-video w-full">
+                <div className="video-container overflow-hidden rounded-lg shadow-md">
                   <YouTubeVideoPlayer
                     videoId={activityVideos.swimming.videoId}
-                    autoPlay={true}
+                    maintainAspectRatio={true}
                     className="w-full h-full"
-                    mute={true}
                   />
                 </div>
               </DialogContent>
@@ -1029,22 +1051,24 @@ export function ActivityTracking() {
           <CardFooter className="p-4 pt-0">
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  <Play className="mr-2 h-4 w-4" />
-                  Watch Tutorial
+                <Button variant="outline" className="w-full justify-between font-normal">
+                  <span className="flex items-center">
+                    <Play className="mr-2 h-5 w-5 text-indigo-500" />
+                    {activityVideos.hiking.title}
+                  </span>
+                  <ChevronRight className="h-4 w-4 opacity-50" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl p-0">
-                <DialogHeader className="p-4 border-b">
-                  <DialogTitle>Hiking Tips & Techniques</DialogTitle>
-                  <DialogDescription>Essential tips for safer and more enjoyable hiking</DialogDescription>
+              <DialogContent className="sm:max-w-[800px]">
+                <DialogHeader>
+                  <DialogTitle>{activityVideos.hiking.title}</DialogTitle>
+                  <DialogDescription>{activityVideos.hiking.description}</DialogDescription>
                 </DialogHeader>
-                <div className="aspect-video w-full">
+                <div className="video-container overflow-hidden rounded-lg shadow-md">
                   <YouTubeVideoPlayer
                     videoId={activityVideos.hiking.videoId}
-                    autoPlay={true}
+                    maintainAspectRatio={true}
                     className="w-full h-full"
-                    mute={true}
                   />
                 </div>
               </DialogContent>

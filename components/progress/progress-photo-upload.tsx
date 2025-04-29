@@ -2,11 +2,11 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Upload, Plus } from "lucide-react"
+import { Upload, Plus, Save } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,9 @@ interface ProgressPhotoUploadProps {
   onUploadComplete?: (url: string, type: string, date: Date) => void
 }
 
+// Define a local storage key for the temp photo
+const TEMP_PHOTO_KEY = 'progress_temp_photo';
+
 export function ProgressPhotoUpload({ userId, onUploadComplete }: ProgressPhotoUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -33,6 +36,38 @@ export function ProgressPhotoUpload({ userId, onUploadComplete }: ProgressPhotoU
   const [photoDate, setPhotoDate] = useState<Date>(new Date())
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  // Load any saved temp photo from localStorage on component mount
+  useEffect(() => {
+    const savedPhotoData = localStorage.getItem(TEMP_PHOTO_KEY);
+    
+    if (savedPhotoData) {
+      try {
+        const photoData = JSON.parse(savedPhotoData);
+        if (photoData.url) {
+          setPreviewUrl(photoData.url);
+          setPhotoType(photoData.type || "front");
+          setPhotoDate(photoData.date ? new Date(photoData.date) : new Date());
+          setIsDialogOpen(true);
+        }
+      } catch (error) {
+        console.error("Error loading saved photo:", error);
+        // Clear invalid data
+        localStorage.removeItem(TEMP_PHOTO_KEY);
+      }
+    }
+  }, []);
+
+  // Save to localStorage when previewUrl changes
+  useEffect(() => {
+    if (previewUrl) {
+      localStorage.setItem(TEMP_PHOTO_KEY, JSON.stringify({
+        url: previewUrl,
+        type: photoType,
+        date: photoDate.toISOString()
+      }));
+    }
+  }, [previewUrl, photoType, photoDate]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -62,9 +97,6 @@ export function ProgressPhotoUpload({ userId, onUploadComplete }: ProgressPhotoU
     const objectUrl = URL.createObjectURL(file)
     setPreviewUrl(objectUrl)
     setIsDialogOpen(true)
-
-    // Clean up the object URL when component unmounts
-    return () => URL.revokeObjectURL(objectUrl)
   }
 
   const triggerFileInput = () => {
@@ -102,6 +134,9 @@ export function ProgressPhotoUpload({ userId, onUploadComplete }: ProgressPhotoU
         description: "Your progress photo has been successfully uploaded.",
       })
 
+      // Clear the temp photo from localStorage after successful upload
+      localStorage.removeItem(TEMP_PHOTO_KEY);
+
       setIsDialogOpen(false)
       setPreviewUrl(null)
       if (fileInputRef.current) {
@@ -119,6 +154,9 @@ export function ProgressPhotoUpload({ userId, onUploadComplete }: ProgressPhotoU
   }
 
   const cancelUpload = () => {
+    // Clear the temp photo from localStorage
+    localStorage.removeItem(TEMP_PHOTO_KEY);
+    
     setPreviewUrl(null)
     setIsDialogOpen(false)
     if (fileInputRef.current) {
@@ -138,14 +176,32 @@ export function ProgressPhotoUpload({ userId, onUploadComplete }: ProgressPhotoU
             className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary/50 transition-colors"
             onClick={triggerFileInput}
           >
-            <Plus className="h-10 w-10 text-muted-foreground mb-2" />
-            <h3 className="font-medium">Add Progress Photo</h3>
-            <p className="text-sm text-muted-foreground text-center mt-1 mb-4">
-              Upload a new photo to track your progress
-            </p>
-            <Button variant="outline" size="sm">
-              <Upload className="h-4 w-4 mr-2" /> Upload Photo
-            </Button>
+            {previewUrl ? (
+              <>
+                <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+                  <Image
+                    src={previewUrl}
+                    alt="Selected photo"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <Button variant="outline" size="sm">
+                  <Save className="h-4 w-4 mr-2" /> Change Photo
+                </Button>
+              </>
+            ) : (
+              <>
+                <Plus className="h-10 w-10 text-muted-foreground mb-2" />
+                <h3 className="font-medium">Add Progress Photo</h3>
+                <p className="text-sm text-muted-foreground text-center mt-1 mb-4">
+                  Upload a new photo to track your progress
+                </p>
+                <Button variant="outline" size="sm">
+                  <Upload className="h-4 w-4 mr-2" /> Upload Photo
+                </Button>
+              </>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex flex-col items-start gap-2">

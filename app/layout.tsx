@@ -10,6 +10,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 import { SkipLink } from "@/components/skip-link"
 import { ErrorBoundary } from "@/components/error-boundary"
+import { ScrollToTop } from "@/components/scroll-to-top"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -42,6 +43,7 @@ export default function RootLayout({
             <SonnerToaster position="top-right" />
             <Analytics />
             <SpeedInsights />
+            <ScrollToTop />
           </SupabaseProvider>
         </ThemeProvider>
       </body>

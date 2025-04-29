@@ -54,7 +54,7 @@ const trainingGuides = [
     category: "Science-Based Training",
     level: "Intermediate",
     image: "/treadmill.jpg",
-    videoSrc: "https://www.youtube.com/embed/wHk3YdDnGBw",
+    videoSrc: "https://www.youtube.com/embed/AzV3EA-1-yM",
     duration: "20 minutes",
     instructor: {
       name: "Sarah Williams",
@@ -69,7 +69,7 @@ const trainingGuides = [
     category: "Recovery Strategies",
     level: "All Levels",
     image: "/hydration.jpg",
-    videoSrc: "https://www.youtube.com/embed/saA6zYwUN0U",
+    videoSrc: "https://www.youtube.com/embed/lumimB_aa7M",
     duration: "15 minutes",
     instructor: {
       name: "David Chen",
@@ -114,7 +114,7 @@ const trainingGuides = [
     category: "Nutrition",
     level: "All Levels",
     image: "/food-planning.jpg",
-    videoSrc: "https://www.youtube.com/embed/uVXd4zgyZXs",
+    videoSrc: "https://www.youtube.com/embed/Eml2xnoLpYE",
     duration: "16 minutes",
     instructor: {
       name: "Lisa Nguyen",
