@@ -248,12 +248,17 @@ export function TrackHydration() {
           <div className="max-h-32 overflow-y-auto space-y-1">
             {recentEntries.map(entry => (
               <div key={entry.id} className="flex justify-between items-center text-xs border rounded-md p-1.5 bg-blue-50/50 dark:bg-blue-950/50">
-                <span>{new Date(entry.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                <span className="font-medium">{entry.amount.toFixed(2)}L</span>
+                <div>
+                  <span className="font-semibold">{entry.amount}L</span>
+                  <span className="text-muted-foreground ml-2">
+                    <Clock className="inline h-3 w-3 mr-0.5" />
+                    {new Date(entry.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-5 w-5 text-gray-500 hover:text-red-500"
+                  className="h-5 w-5 text-muted-foreground"
                   onClick={() => deleteEntry(entry.id, entry.amount)}
                 >
                   <Trash className="h-3 w-3" />
@@ -266,8 +271,13 @@ export function TrackHydration() {
     
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button className="w-full bg-blue-600 hover:bg-blue-700">
-            <Droplets className="mr-2 h-4 w-4" /> Track Hydration
+          <Button 
+            variant="outline"
+            className="w-full"
+            data-action="track-water"
+          >
+            <Droplets className="mr-2 h-4 w-4" />
+            Track Water
           </Button>
         </DialogTrigger>
         <DialogContent>

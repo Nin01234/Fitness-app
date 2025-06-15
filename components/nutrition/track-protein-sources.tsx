@@ -131,7 +131,11 @@ export function TrackProteinSources() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full bg-red-600 hover:bg-red-700">
+        <Button 
+          variant="outline" 
+          className="w-full"
+          data-action="track-protein"
+        >
           <Beef className="mr-2 h-4 w-4" /> Track Protein Sources
         </Button>
       </DialogTrigger>

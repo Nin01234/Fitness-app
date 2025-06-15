@@ -125,7 +125,11 @@ export function TrackPlantFoods() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full bg-green-600 hover:bg-green-700">
+        <Button 
+          variant="outline" 
+          className="w-full"
+          data-action="track-plant"
+        >
           <Leaf className="mr-2 h-4 w-4" /> Track Plant Foods
         </Button>
       </DialogTrigger>

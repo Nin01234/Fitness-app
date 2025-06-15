@@ -8,33 +8,13 @@ import { Button } from '@/components/ui/button'
 declare global {
   interface Window {
     YT: {
-      Player: {
-        new (
-          element: HTMLElement | string,
-          options: {
-            videoId: string;
-            playerVars?: {
-              autoplay?: number;
-              controls?: number;
-              rel?: number;
-              showinfo?: number;
-              mute?: number;
-              modestbranding?: number;
-              playsinline?: number;
-              fs?: number;
-              origin?: string;
-              enablejsapi?: number;
-            };
-            events?: {
-              onReady?: (event: any) => void;
-              onStateChange?: (event: { data: number }) => void;
-              onError?: (event: { data: number }) => void;
-            };
-          }
-        ): YouTubePlayer;
-      };
-    };
-    onYouTubeIframeAPIReady: () => void;
+      Player: any
+      PlayerState: {
+        PLAYING: number
+        ENDED: number
+      }
+    }
+    onYouTubeIframeAPIReady: () => void
   }
 }
 
@@ -62,6 +42,17 @@ interface YouTubeVideoPlayerProps {
   onToggleMinimize?: () => void
 }
 
+interface YouTubeEvent {
+  target: {
+    setPlaybackQuality: (quality: string) => void
+    unMute: () => void
+    playVideo: () => void
+    getIframe: () => HTMLIFrameElement | null
+    destroy: () => void
+  }
+  data: number
+}
+
 export function YouTubeVideoPlayer({
   videoId: initialVideoId,
   autoPlay = true,
@@ -80,7 +71,7 @@ export function YouTubeVideoPlayer({
   const [isPlayerReady, setIsPlayerReady] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isFullScreen, setIsFullScreen] = useState(false)
-  const playerRef = useRef<YouTubePlayer | null>(null)
+  const playerRef = useRef<any>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
@@ -126,7 +117,7 @@ export function YouTubeVideoPlayer({
 
   // Initialize player when API is ready
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout
+    let timeoutId: number | undefined
     let initializationAttempts = 0
     const MAX_ATTEMPTS = 5
 
@@ -148,116 +139,118 @@ export function YouTubeVideoPlayer({
 
       initializationAttempts++
 
-      if (window.YT && window.YT.Player && containerRef.current) {
-        try {
-          // Clean up previous player if it exists
-          if (playerRef.current) {
-            try {
-              playerRef.current.destroy()
-            } catch (error) {
-              console.error("Error destroying previous player:", error)
-            }
-          }
+      if (typeof window.YT === 'undefined' || !window.YT.Player) {
+        // Load YouTube API if not already loaded
+        if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+          const tag = document.createElement('script')
+          tag.src = 'https://www.youtube.com/iframe_api'
+          document.head.appendChild(tag)
+        }
+        
+        // Wait for API to load
+        window.onYouTubeIframeAPIReady = createPlayer
+        return
+      }
 
-          playerRef.current = new window.YT.Player(containerRef.current, {
-            videoId: videoId,
-            playerVars: {
-              autoplay: autoPlay ? 1 : 0,
-              controls: 1,
-              rel: 0,
-              showinfo: 0,
-              mute: mute ? 1 : 0,
-              modestbranding: 1,
-              playsinline: 1,
-              fs: 0, // Disable YouTube's fullscreen button to use our custom one
-              origin: window.location.origin,
-              enablejsapi: 1
-            },
-            events: {
-              onReady: (event) => {
-                setIsLoading(false)
-                setIsPlayerReady(true)
-                console.log("YouTube player ready")
-                
-                // Apply high quality if available
-                try {
-                  event.target.setPlaybackQuality('hd720')
-                } catch (error) {
-                  console.warn("Could not set playback quality", error)
+      createPlayer()
+    }
+
+    const createPlayer = () => {
+      if (playerRef.current) {
+        try {
+          playerRef.current.destroy()
+        } catch (error) {
+          console.error("Error destroying previous player:", error)
+        }
+      }
+
+      playerRef.current = new window.YT.Player(containerRef.current, {
+        videoId: videoId,
+        playerVars: {
+          autoplay: autoPlay ? 1 : 0,
+          controls: 1,
+          rel: 0,
+          showinfo: 0,
+          mute: mute ? 1 : 0,
+          modestbranding: 1,
+          playsinline: 1,
+          fs: 0, // Disable YouTube's fullscreen button to use our custom one
+          origin: window.location.origin,
+          enablejsapi: 1
+        },
+        events: {
+          onReady: (event: YouTubeEvent) => {
+            setIsLoading(false)
+            setIsPlayerReady(true)
+            console.log("YouTube player ready")
+            
+            // Apply high quality if available
+            try {
+              event.target.setPlaybackQuality('hd720')
+            } catch (error) {
+              console.warn("Could not set playback quality", error)
+            }
+            
+            // Force autoplay with audio on all devices
+            if (autoPlay) {
+              try {
+                // Ensure audio is unmuted unless mute is explicitly set
+                if (!mute) {
+                  event.target.unMute()
                 }
+                event.target.playVideo()
                 
-                // Force autoplay with audio on all devices
-                if (autoPlay) {
-                  try {
-                    // Ensure audio is unmuted unless mute is explicitly set
-                    if (!mute) {
-                      event.target.unMute()
-                    }
+                // For mobile, we need to handle autoplay specially
+                if (isMobile) {
+                  // On mobile, sometimes we need to play after a user interaction
+                  document.addEventListener('touchstart', function playOnTouch() {
                     event.target.playVideo()
-                    
-                    // For mobile, we need to handle autoplay specially
-                    if (isMobile) {
-                      // On mobile, sometimes we need to play after a user interaction
-                      document.addEventListener('touchstart', function playOnTouch() {
-                        event.target.playVideo()
-                        document.removeEventListener('touchstart', playOnTouch)
-                      }, { once: true })
-                    }
-                  } catch (error) {
-                    console.warn("Could not autoplay", error)
-                  }
+                    document.removeEventListener('touchstart', playOnTouch)
+                  }, { once: true })
                 }
-                
-                // Ensure iframe doesn't redirect to YouTube
-                try {
-                  const iframe = event.target.getIframe()
-                  if (iframe) {
-                    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation')
-                    // Add allow attribute for autoplay with sound
-                    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture')
-                  }
-                } catch (error) {
-                  console.warn("Could not set iframe attributes", error)
-                }
-              },
-              onStateChange: (event) => {
-                // Video ended (state = 0)
-                if (event.data === 0 && onVideoEnd) {
-                  onVideoEnd()
-                }
-              },
-              onError: (event) => {
-                console.error("YouTube player error:", event)
-                setHasError(true)
-                setErrorMessage(getErrorMessage(event.data))
-                setIsLoading(false)
+              } catch (error) {
+                console.warn("Could not autoplay", error)
               }
             }
-          })
-        } catch (error) {
-          console.error("Error initializing YouTube player:", error)
-          setHasError(true)
-          setErrorMessage("Failed to initialize YouTube player. Please try again later.")
-          setIsLoading(false)
+            
+            // Ensure iframe doesn't redirect to YouTube
+            try {
+              const iframe = event.target.getIframe()
+              if (iframe) {
+                iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation')
+                // Add allow attribute for autoplay with sound
+                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture')
+              }
+            } catch (error) {
+              console.warn("Could not set iframe attributes", error)
+            }
+          },
+          onStateChange: (event: YouTubeEvent) => {
+            // Video ended (state = 0)
+            if (event.data === 0 && onVideoEnd) {
+              onVideoEnd()
+            }
+          },
+          onError: (event: YouTubeEvent) => {
+            console.error("YouTube player error:", event)
+            setHasError(true)
+            setErrorMessage(getErrorMessage(event.data))
+            setIsLoading(false)
+          }
         }
-      } else {
-        // If YT is not ready yet, try again in 500ms
-        timeoutId = setTimeout(initializePlayer, 500)
-      }
+      })
     }
 
     // Wait for the API to be initialized
-    if (window.YT && window.YT.Player) {
-      initializePlayer()
-    } else {
+    if (typeof window.YT === 'undefined' || !window.YT.Player) {
       // Define callback for when API becomes available
-      window.onYouTubeIframeAPIReady = () => {
-        initializePlayer()
-      }
+      window.onYouTubeIframeAPIReady = initializePlayer
+    } else {
+      initializePlayer()
     }
 
     return () => {
-      clearTimeout(timeoutId)
+      if (timeoutId) clearTimeout(timeoutId)
       if (playerRef.current) {
         try {
           playerRef.current.destroy()

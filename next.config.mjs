@@ -5,6 +5,14 @@ try {
   // ignore error
 }
 
+// Helper function to merge configurations
+function mergeConfig(baseConfig, userConfig) {
+  if (!userConfig || typeof userConfig !== 'object') {
+    return baseConfig
+  }
+  return { ...baseConfig, ...userConfig }
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
@@ -23,26 +31,4 @@ const nextConfig = {
   },
 }
 
-mergeConfig(nextConfig, userConfig)
-
-function mergeConfig(nextConfig, userConfig) {
-  if (!userConfig) {
-    return
-  }
-
-  for (const key in userConfig) {
-    if (
-      typeof nextConfig[key] === 'object' &&
-      !Array.isArray(nextConfig[key])
-    ) {
-      nextConfig[key] = {
-        ...nextConfig[key],
-        ...userConfig[key],
-      }
-    } else {
-      nextConfig[key] = userConfig[key]
-    }
-  }
-}
-
-export default nextConfig
+export default mergeConfig(nextConfig, userConfig?.default || userConfig)
