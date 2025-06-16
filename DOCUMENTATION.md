@@ -58,5 +58,5 @@ FitLife is a comprehensive fitness tracking application that helps users monitor
 
 ## Support
 For support questions, please contact:
-- Email: support@fitlifeapp.com
-- Help Center: https://help.fitlifeapp.com
+- Email: innocentgh10@gmail.com
+- Help Center: +233550477759
