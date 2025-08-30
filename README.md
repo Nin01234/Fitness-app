@@ -1,5 +1,5 @@
 for app overview use 
-https://fitlife-rho-six.vercel.app/
+https://fitness-app-main-olive.vercel.app/
 
 
 # FitLife Fitness App
